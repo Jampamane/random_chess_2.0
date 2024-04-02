@@ -203,9 +203,17 @@ class Player():
             return game_over
         return False
     
-    def retrieve_possible_moves(self, piece_list, page_source):
-        possible_moves = {}
+    def retrieve_final_moves(self, page_source):
+        piece_list = self.alive_pieces()
+        final_moves = []
+        all_pieces = self.create_dict(page_source, sort_color=False)
         for piece in piece_list:
-            piece_moves = piece.get_moves(self.create_dict(page_source, sort_color=False))
+            moves = piece.return_final_moves(all_pieces)
+            try:
+                for move in moves:
+                    final_moves.append(move)
+            except:
+                pass
+        return final_moves
 
     

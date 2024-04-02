@@ -30,10 +30,12 @@ def main(browser):
         on_the_board = piece.on_the_board(potential_moves)
         collision = piece.detect_collisions(on_the_board, all_the_pieces)
         final_moves = piece.final_moves(on_the_board, collision)
-        print(f"{bcolors.WARNING}{str(piece)}'s potential moves: {potential_moves}{bcolors.ENDC}")
-        print(f"{bcolors.OKCYAN}{str(piece)}'s on the board moves: {on_the_board}{bcolors.ENDC}")
-        print(f"{bcolors.FAIL}{str(piece)}'s detected collisions: {collision}{bcolors.ENDC}")
         print(f"{bcolors.OKGREEN}{str(piece)}'s final moves: {final_moves}{bcolors.ENDC}")
+    
+    moves = player.retrieve_final_moves(browser.page_source)
+    for move in moves:
+        print(move)
+    print(len(moves))
 
 
 '''
@@ -113,7 +115,7 @@ if __name__ == "__main__":
 
     #Connect to the current game being played
     #url = input(f"{bcolors.HEADER}Please enter the url for the chess game: {bcolors.ENDC}") 
-    url = f"https://www.chess.com/game/live/104885610928?username={ChessLogin.username}"
+    url = f"https://www.chess.com/game/live/104886434480?username={ChessLogin.username}"
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)
