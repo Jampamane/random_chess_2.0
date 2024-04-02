@@ -1,10 +1,4 @@
-import pyautogui
-import keyboard
-import winsound
 from player import Player
-import random
-import queen
-import requests
 import time
 from selenium.webdriver.common.action_chains import ActionChains 
 from bs4 import BeautifulSoup
