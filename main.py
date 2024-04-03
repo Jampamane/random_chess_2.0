@@ -23,21 +23,14 @@ def main(browser):
     finally:
         player()
         opponent()
-    
-    player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
-    opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-    print(player_moves)
-    print(opponent_moves)
 
-    
-
-
-'''
     while True:
         if player.is_turn(browser.page_source) == True:
             opponent.check_for_move(browser.page_source)
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
-
+            player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
+    '''
+            print(f"You have {}")
         if opponent.is_turn(browser.page_source) == True:
             player_move = player.check_for_move(browser.page_source)
             if player_move == "capture":
@@ -56,7 +49,8 @@ def main(browser):
                 player.set_positions(browser.page_source, player.alive_pieces())
             elif player_move == False:
                 pass
-'''
+                '''
+
 
 if __name__ == "__main__":
     #Establish the selenium browser
