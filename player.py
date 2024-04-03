@@ -1,7 +1,3 @@
-import pyautogui
-import random
-import ctypes
-import time
 from pieces import Pawn
 from pieces import Knight
 from pieces import Rook
