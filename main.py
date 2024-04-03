@@ -38,7 +38,6 @@ def main(browser):
     print(len(moves))
 
 
-'''
     while True:
         if player.is_turn(browser.page_source) == True:
             opponent_move = opponent.check_for_move(browser.page_source)
@@ -77,7 +76,7 @@ def main(browser):
                 player.set_positions(browser.page_source, player.alive_pieces())
             elif player_move == False:
                 pass
-'''
+
 
 if __name__ == "__main__":
     #Establish the selenium browser
@@ -89,29 +88,29 @@ if __name__ == "__main__":
     browser.get("https://www.chess.com/")
 
     #Login to www.chess.com
-    #print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
-    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    #time.sleep(1)
-    #home_page_login = browser.find_elements(By.CLASS_NAME, "login")
-    #home_page_login[1].click()
-    #print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
-    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    #time.sleep(1)
-    #login_email = browser.find_element(By.CLASS_NAME, "login-email")
-    #login_email.send_keys(ChessLogin.username)
-    #login_password = browser.find_element(By.CLASS_NAME, "login-password")
-    #login_password.send_keys(ChessLogin.password)
-    #login_button = browser.find_element(By.CLASS_NAME, "login-space-top-large")
-    #login_button.click()
-    #print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
-    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    #time.sleep(1)
-    #try:
-    #    assert "home" in browser.current_url
-    #    print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
-    #except:
-    #    print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
-    #    quit()
+    print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
+    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    time.sleep(1)
+    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
+    home_page_login[1].click()
+    print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
+    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    time.sleep(1)
+    login_email = browser.find_element(By.CLASS_NAME, "login-email")
+    login_email.send_keys(ChessLogin.username)
+    login_password = browser.find_element(By.CLASS_NAME, "login-password")
+    login_password.send_keys(ChessLogin.password)
+    login_button = browser.find_element(By.CLASS_NAME, "login-space-top-large")
+    login_button.click()
+    print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
+    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    time.sleep(1)
+    try:
+        assert "home" in browser.current_url
+        print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
+    except:
+        print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
+        quit()
 
     #Connect to the current game being played
     #url = input(f"{bcolors.HEADER}Please enter the url for the chess game: {bcolors.ENDC}") 
