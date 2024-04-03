@@ -212,4 +212,5 @@ class Player():
                 pass
         return final_moves
 
-    
+    def detect_move_check(self, player_moves, opponent_moves):
+        pass
