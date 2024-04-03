@@ -28,8 +28,9 @@ def main(browser):
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             print(f"{player.username} has {len(player_moves)} available moves")
-            random_move = random.choice(player_moves)
-            print(random_move)
+            random_piece, random_move = random.choice(player_moves)
+            print(f"{str(random_piece)} {random_move}")
+            move_position = browser.find_element(By.CLASS_NAME, f"piece-{random_piece.board_position}")
 
         elif opponent.is_turn(browser.page_source) == True:
             player.check_for_move(browser.page_source)
