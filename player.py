@@ -178,26 +178,18 @@ class Player():
             return False
 
     def check_for_move(self, page_source) -> bool:
-        dict_ = self.create_dict(page_source)
+        piece_dict = self.create_dict(page_source)
         piece_list = self.alive_pieces()
         for piece in piece_list:
-            if piece.board_position in dict_:
-                pass
-            else:
+            try:
+                piece_dict[piece.board_position]
+            except:
                 page = BeautifulSoup(page_source, "html.parser")
                 move = page.find(class_=f"{self.color} node selected")
                 print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}")
-                self.set_positions(page_source, piece_list)
-                self.is_check(move)
-                if self.is_capture(move) == True:
-                    return "capture"
-                if self.is_checkmate(move) == True:
-                    return "checkmate"
                 return True
-        game_over = self.is_game_over(page_source)
-        if game_over != False:
-            return game_over
         return False
+        
     
     def retrieve_final_moves(self, page_source, all_pieces = None):
         piece_list = self.alive_pieces()

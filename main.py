@@ -1,8 +1,7 @@
 from player import Player
 import time
+import random
 from selenium.webdriver.common.action_chains import ActionChains 
-from bs4 import BeautifulSoup
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from bcolors import bcolors
 from selenium.webdriver import Chrome
@@ -26,10 +25,23 @@ def main(browser):
 
     while True:
         if player.is_turn(browser.page_source) == True:
-            opponent.check_for_move(browser.page_source)
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
+            print(f"{player.username} has {len(player_moves)} available moves")
+            random_move = random.choice(player_moves)
+            print(random_move)
+
+        elif opponent.is_turn(browser.page_source) == True:
+            player.check_for_move(browser.page_source)
+            player.set_positions(browser.page_source, player.alive_pieces())
+            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+            print(f"{opponent.username} has {len(opponent_moves)} available moves")
+            while opponent.check_for_move(browser.page_source) == False:
+                pass
+
     '''
+    opponent_move = opponent.check_for_move(browser.page_source)
+            
             print(f"You have {}")
         if opponent.is_turn(browser.page_source) == True:
             player_move = player.check_for_move(browser.page_source)
@@ -88,7 +100,7 @@ if __name__ == "__main__":
 
     #Connect to the current game being played
     #url = input(f"{bcolors.HEADER}Please enter the url for the chess game: {bcolors.ENDC}") 
-    url = f"https://www.chess.com/game/live/104875221238?username=jampamane"
+    url = f"https://www.chess.com/game/live/104869523044?username=jampamane"
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)
