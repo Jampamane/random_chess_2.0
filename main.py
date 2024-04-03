@@ -24,40 +24,13 @@ def main(browser):
         player()
         opponent()
 
-    for piece in player.alive_pieces(): #This is a change hey look a change
-        all_the_pieces = player.create_dict(browser.page_source, sort_color=False)
-        potential_moves = piece.get_potential_moves()
-        on_the_board = piece.on_the_board(potential_moves)
-        collision = piece.detect_collisions(on_the_board, all_the_pieces)
-        final_moves = piece.final_moves(on_the_board, collision)
-        print(f"{bcolors.OKGREEN}{str(piece)}'s final moves: {final_moves}{bcolors.ENDC}")
-    
-    moves = player.retrieve_final_moves(browser.page_source)
-    for move in moves:
-        print(move)
-    print(len(moves))
-
-
     while True:
         if player.is_turn(browser.page_source) == True:
-            opponent_move = opponent.check_for_move(browser.page_source)
-            if opponent_move == "capture":
-                opponent.set_positions(browser.page_source, opponent.alive_pieces())
-                player.set_positions(browser.page_source, player.alive_pieces())
-            elif opponent_move == "checkmate":
-                print("gameover man")
-                quit()
-            elif opponent_move == "lose":
-                print("gameover man")
-                quit()
-            elif opponent_move == "win":
-                print("wow you won")
-                quit()
-            elif opponent_move == True:
-                opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            elif opponent_move == False:
-                pass
-
+            opponent.check_for_move(browser.page_source)
+            opponent.set_positions(browser.page_source, opponent.alive_pieces())
+            player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
+    '''
+            print(f"You have {}")
         if opponent.is_turn(browser.page_source) == True:
             player_move = player.check_for_move(browser.page_source)
             if player_move == "capture":
@@ -76,6 +49,7 @@ def main(browser):
                 player.set_positions(browser.page_source, player.alive_pieces())
             elif player_move == False:
                 pass
+                '''
 
 
 if __name__ == "__main__":
@@ -88,33 +62,33 @@ if __name__ == "__main__":
     browser.get("https://www.chess.com/")
 
     #Login to www.chess.com
-    print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
-    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
-    home_page_login[1].click()
-    print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
-    login_email = browser.find_element(By.CLASS_NAME, "login-email")
-    login_email.send_keys(ChessLogin.username)
-    login_password = browser.find_element(By.CLASS_NAME, "login-password")
-    login_password.send_keys(ChessLogin.password)
-    login_button = browser.find_element(By.CLASS_NAME, "login-space-top-large")
-    login_button.click()
-    print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
-    try:
-        assert "home" in browser.current_url
-        print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
-    except:
-        print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
-        quit()
+    #print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
+    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    #time.sleep(1)
+    #home_page_login = browser.find_elements(By.CLASS_NAME, "login")
+    #home_page_login[1].click()
+    #print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
+    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    #time.sleep(1)
+    #login_email = browser.find_element(By.CLASS_NAME, "login-email")
+    #login_email.send_keys(ChessLogin.username)
+    #login_password = browser.find_element(By.CLASS_NAME, "login-password")
+    #login_password.send_keys(ChessLogin.password)
+    #login_button = browser.find_element(By.CLASS_NAME, "login-space-top-large")
+    #login_button.click()
+    #print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
+    #print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
+    #time.sleep(1)
+    #try:
+    #    assert "home" in browser.current_url
+    #    print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
+    #except:
+    #    print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
+    #    quit()
 
     #Connect to the current game being played
     #url = input(f"{bcolors.HEADER}Please enter the url for the chess game: {bcolors.ENDC}") 
-    url = f"https://www.chess.com/game/live/104886434480?username={ChessLogin.username}"
+    url = f"https://www.chess.com/game/live/104875221238?username=jampamane"
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)

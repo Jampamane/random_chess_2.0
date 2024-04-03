@@ -1,7 +1,3 @@
-import pyautogui
-import random
-import ctypes
-import time
 from pieces import Pawn
 from pieces import Knight
 from pieces import Rook
@@ -203,10 +199,11 @@ class Player():
             return game_over
         return False
     
-    def retrieve_final_moves(self, page_source):
+    def retrieve_final_moves(self, page_source, all_pieces = None):
         piece_list = self.alive_pieces()
         final_moves = []
-        all_pieces = self.create_dict(page_source, sort_color=False)
+        if not all_pieces:
+            all_pieces = self.create_dict(page_source, sort_color=False)
         for piece in piece_list:
             moves = piece.return_final_moves(all_pieces)
             try:
@@ -216,4 +213,22 @@ class Player():
                 pass
         return final_moves
 
-    
+    def retrieve_non_check_moves(self, page_source, opponent):
+        player_potential_moves = self.retrieve_final_moves(page_source)
+        all_the_pieces = self.create_dict(page_source, sort_color=False)
+        non_check_moves = []
+        for piece, move in player_potential_moves:
+            all_the_pieces.pop(piece.board_position)
+            all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
+            opponent_moves = {move: "Value don't matter" for piece, move in opponent.retrieve_final_moves(page_source, all_the_pieces)}
+            try:
+                if str(piece) == "King":
+                    opponent_moves[move]
+                else:
+                    opponent_moves[self.king.board_position]
+            except:
+                non_check_moves.append((piece, move))
+            finally:
+                all_the_pieces.pop(move)
+                all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
+        return non_check_moves
