@@ -1,4 +1,5 @@
 from player import Player
+from bs4 import BeautifulSoup
 import time
 import random
 from selenium.webdriver.common.action_chains import ActionChains 
@@ -23,6 +24,7 @@ def main(browser):
         player()
         opponent()
 
+
     while True:
         if player.is_turn(browser.page_source) == True:
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
@@ -30,7 +32,11 @@ def main(browser):
             print(f"{player.username} has {len(player_moves)} available moves")
             random_piece, random_move = random.choice(player_moves)
             print(f"{str(random_piece)} {random_move}")
-            move_position = browser.find_element(By.CLASS_NAME, f"piece-{random_piece.board_position}")
+            square = browser.find_element(By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
+            square.click()
+            print(square)
+            quit()
+
 
         elif opponent.is_turn(browser.page_source) == True:
             player.check_for_move(browser.page_source)
@@ -105,6 +111,6 @@ if __name__ == "__main__":
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)
-    print(f"{bcolors.WARNING}Letting the page load for 3 seconds.{bcolors.ENDC}")
-    time.sleep(3)
+    print(f"{bcolors.WARNING}Letting the page load for 5 seconds.{bcolors.ENDC}")
+    time.sleep(5)
     main(browser)
