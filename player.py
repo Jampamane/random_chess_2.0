@@ -223,4 +223,7 @@ class Player():
             finally:
                 all_the_pieces.pop(move)
                 all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
-        return non_check_moves
+        if len(non_check_moves) == 0:
+            return None
+        else:
+            return non_check_moves
