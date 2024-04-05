@@ -82,12 +82,13 @@ if __name__ == "__main__":
     #Login to www.chess.com
     browser.get("https://www.chess.com/")
     print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
-    home_page_login = WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
-            By.CLASS_NAME, "cc-button-component.cc-button-primary.button.auth.login")))
+            By.CLASS_NAME, "login")))
     
-    page_login = browser.find_element(By.CLASS_NAME, "")
-    home_page_login.click()
+    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
+    home_page_login[1].click()
+    
     print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
 
     login_email = WebDriverWait(browser, 10).until(
