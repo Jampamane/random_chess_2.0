@@ -4,6 +4,8 @@ import time
 import random
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bcolors import bcolors
 from selenium.webdriver import Chrome
 from validate_url import Validate
@@ -73,31 +75,44 @@ if __name__ == "__main__":
     #Establish the selenium browser
     print(f"{bcolors.WARNING}Establishing browser.{bcolors.ENDC}")
     options = ChromeOptions()
-    options.add_argument("--headless") #Start the browser in headless mode
+    #options.add_argument("--headless") #Start the browser in headless mode
     options.add_argument("log-level=3") #So it doesn't spam the console with messages
     browser = Chrome(options=options)
-    browser.get("https://www.chess.com/")
 
     #Login to www.chess.com
+    browser.get("https://www.chess.com/")
     print(f"{bcolors.WARNING}Attempting to login.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
-    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
-    home_page_login[1].click()
+    home_page_login = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "cc-button-component.cc-button-primary.button.auth.login")))
+    
+    page_login = browser.find_element(By.CLASS_NAME, "")
+    home_page_login.click()
     print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
-    login_email = browser.find_element(By.CLASS_NAME, "login-email")
+
+    login_email = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.ID, "username")))
     login_email.send_keys(ChessLogin.username)
-    login_password = browser.find_element(By.CLASS_NAME, "login-password")
+
+    login_password = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.ID, "password")))
     login_password.send_keys(ChessLogin.password)
-    login_button = browser.find_element(By.CLASS_NAME, "login-space-top-large")
+    
+    login_button = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "login-space-top-large")))
     login_button.click()
+
     print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
-    print(f"{bcolors.WARNING}Letting the page load for 1 second.{bcolors.ENDC}")
-    time.sleep(1)
+
+    home_username = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "home-username-link")))
+    
     try:
-        assert "home" in browser.current_url
+        assert ChessLogin.username in home_username.text
         print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
     except:
         print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
