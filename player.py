@@ -185,7 +185,7 @@ class Player():
                 piece_dict[piece.board_position]
             except:
                 if str(piece) == "Pawn":
-                    if (self.color == "white" and str(piece.board_position[1]) == 7) or (self.color == "black" and str(piece.board_position[1]) == 2):
+                    if (self.color == "white" and int(piece.board_position[1]) == 7) or (self.color == "black" and int(piece.board_position[1]) == 2):
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
