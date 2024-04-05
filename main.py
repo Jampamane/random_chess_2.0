@@ -20,8 +20,7 @@ def main(browser):
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)
-    print(f"{bcolors.WARNING}Letting the page load for 5 seconds.{bcolors.ENDC}")
-    time.sleep(5)
+    time.sleep(3)
 
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
@@ -35,6 +34,14 @@ def main(browser):
         player()
         opponent()
         action_chains = ActionChains(browser)
+    
+    if opponent.is_turn(browser.page_source) == True:
+        opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+        while opponent.check_for_move(browser.page_source) == True:
+            opponent.set_positions()
+            player.set_positions()
+            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+            break
 
 
     while True:
@@ -42,7 +49,6 @@ def main(browser):
             opponent.check_for_move(browser.page_source)
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
             player.set_positions(browser.page_source, player.alive_pieces())
-            time.sleep(1)
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             if player_moves == None:
                 print("Checkmate bro, you lose")
@@ -55,27 +61,25 @@ def main(browser):
                 piece = browser.find_element(By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
             finally:
                 piece.click()
-                try:
-                    square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
-                except:
-                    square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
-                finally: 
-                    action_chains.drag_and_drop(piece, square).perform()
-                    time.sleep(1)
+                while True:
                     try:
-                        player.check_for_move(browser.page_source)
-                        player.set_positions(browser.page_source, player.alive_pieces())
-                        opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                        square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
+                        break
                     except:
-                        player.set_positions(browser.page_source, player.alive_pieces())
-                        opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                        try:
+                            square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
+                            break
+                        except:
+                            pass
+                action_chains.drag_and_drop(piece, square).perform()
+
 
 
 if __name__ == "__main__":
     #Establish the selenium browser
     print(f"{bcolors.WARNING}Establishing browser.{bcolors.ENDC}")
     options = ChromeOptions()
-    #options.add_argument("--headless") #Start the browser in headless mode
+    options.add_argument("--headless") #Start the browser in headless mode
     options.add_argument("log-level=3") #So it doesn't spam the console with messages
     browser = Chrome(options=options)
 
@@ -85,35 +89,29 @@ if __name__ == "__main__":
     WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.CLASS_NAME, "login")))
-    
     home_page_login = browser.find_elements(By.CLASS_NAME, "login")
     home_page_login[1].click()
-    
     print(f"{bcolors.WARNING}Redirected to the login page.{bcolors.ENDC}")
-
     login_email = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.ID, "username")))
     login_email.send_keys(ChessLogin.username)
-
     login_password = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.ID, "password")))
     login_password.send_keys(ChessLogin.password)
-    
     login_button = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.CLASS_NAME, "login-space-top-large")))
     login_button.click()
-
     print(f"{bcolors.WARNING}Credentials submitted.{bcolors.ENDC}")
-
     home_username = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.CLASS_NAME, "home-username-link")))
     
+    #Verify the login succeeded
     try:
-        assert ChessLogin.username in home_username.text
+        assert "www.chess.com/home" in browser.current_url
         print(f"{bcolors.OKGREEN}Login successful!{bcolors.ENDC}")
     except:
         print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")

@@ -137,46 +137,6 @@ class Player():
         else:
             return False
 
-    def is_check(self, move):
-        if "+" in str(move):
-            print(f"{bcolors.WARNING}{'CHECK'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_capture(self, move):
-        if "x" in str(move):
-            print(f"{bcolors.WARNING}{'CAPTURE'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_checkmate(self, move):
-        if "#" in str(move):
-            print(f"{bcolors.FAIL}{'CHECKMATE'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_game_over(self, page_source):
-        page = BeautifulSoup(page_source, "html.parser")
-        if page.find(class_="white game-result") != None:
-            if self.color == "white":
-                print(f"{bcolors.OKGREEN}{'YOU WIN'.center(25, '-')}{bcolors.ENDC}")
-                return "win"
-            else:
-                print(f"{bcolors.FAIL}{'YOU LOSE'.center(25, '-')}{bcolors.ENDC}")
-                return "lose"
-        elif page.find(class_="black game-result") != None:
-            if self.color == "black":
-                print(f"{bcolors.OKGREEN}{'YOU WIN'.center(25, '-')}{bcolors.ENDC}")
-                return "win"
-            else:
-                print(f"{bcolors.FAIL}{'YOU LOSE'.center(25, '-')}{bcolors.ENDC}")
-                return "lose"
-        else:
-            return False
-
     def check_for_move(self, page_source) -> bool:
         piece_dict = self.create_dict(page_source)
         piece_list = self.alive_pieces()
@@ -185,13 +145,13 @@ class Player():
                 piece_dict[piece.board_position]
             except:
                 if str(piece) == "Pawn":
-                    if (self.color == "white" and str(piece.board_position[1]) == 7) or (self.color == "black" and str(piece.board_position[1]) == 2):
+                    if (self.color == "white" and int(piece.board_position[1]) == 7) or (self.color == "black" and int(piece.board_position[1]) == 2):
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
                 page = BeautifulSoup(page_source, "html.parser")
                 move = page.find(class_=f"{self.color} node selected")
-                print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}")
+                print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
                 return True
         return False
         
