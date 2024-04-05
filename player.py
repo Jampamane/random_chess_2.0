@@ -184,6 +184,11 @@ class Player():
             try:
                 piece_dict[piece.board_position]
             except:
+                if str(piece) == "Pawn":
+                    if (self.color == "white" and str(piece.board_position[1]) == 7) or (self.color == "black" and str(piece.board_position[1]) == 2):
+                        self.pieces.remove(piece)
+                        piece = Queen(self.color)
+                        self.pieces.append(piece)
                 page = BeautifulSoup(page_source, "html.parser")
                 move = page.find(class_=f"{self.color} node selected")
                 print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}")
