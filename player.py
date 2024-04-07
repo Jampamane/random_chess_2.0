@@ -138,6 +138,9 @@ class Player():
             return False
 
     def check_for_move(self, page_source) -> bool:
+        '''
+        Function that is used exclusively to figure out where the opponent has moved
+        '''
         piece_dict = self.create_dict(page_source)
         piece_list = self.alive_pieces()
         for piece in piece_list:
@@ -149,10 +152,8 @@ class Player():
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
-                page = BeautifulSoup(page_source, "html.parser")
-                move = page.find(class_=f"{self.color} node selected")
-                print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
-                return True
+                # print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
+                return piece
         return False
         
     

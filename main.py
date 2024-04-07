@@ -37,18 +37,16 @@ def main(browser):
     
     if opponent.is_turn(browser.page_source) == True:
         opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-        while opponent.check_for_move(browser.page_source) == True:
-            opponent.set_positions()
-            player.set_positions()
-            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            break
+        print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
+        while True:
+            if opponent.check_for_move(browser.page_source) == True:
+                opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                player.set_positions(browser.page_source, player.alive_pieces())
+                break
 
 
     while True:
         if player.is_turn(browser.page_source) == True:
-            opponent.check_for_move(browser.page_source)
-            opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            player.set_positions(browser.page_source, player.alive_pieces())
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             if player_moves == None:
                 print("Checkmate bro, you lose")
@@ -72,7 +70,18 @@ def main(browser):
                         except:
                             pass
                 action_chains.drag_and_drop(piece, square).perform()
-
+            while True:
+                if player.check_for_move(browser.page_source) == True:
+                    opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                    player.set_positions(browser.page_source, player.alive_pieces())
+                    break
+            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+            print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
+            while True:
+                if opponent.check_for_move(browser.page_source) == True:
+                    opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                    player.set_positions(browser.page_source, player.alive_pieces())
+                    break
 
 
 if __name__ == "__main__":
