@@ -40,7 +40,6 @@ def main(browser):
             opponent.check_for_move(browser.page_source)
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
             player.set_positions(browser.page_source, player.alive_pieces())
-            time.sleep(1)
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             if player_moves == None:
                 print("Checkmate bro, you lose")
@@ -104,8 +103,8 @@ if __name__ == "__main__":
         quit()
 
     
+    main(browser)
     while True:
-        main(browser)
         continue_ = input("Would you like to play again? (y/n) ")
         if continue_.lower() == "y" or continue_.lower() == "yes":
             main(browser)
