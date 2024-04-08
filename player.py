@@ -49,7 +49,7 @@ class Player():
         move = moves[-1]
 
 
-        print(f"{self.username} moved to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
+        print(f"{self.username} moved to {self.text_color}{str(move).upper()}{bcolors.ENDC}\n")
         # their {self.text_color}{str(piece).upper()}{bcolors.ENDC} 
 
 
