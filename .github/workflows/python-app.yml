@@ -30,8 +30,6 @@ jobs:
         pip install bs4
         pip install selenium
         pip install requests
-        pip install time
-        pip install random
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
