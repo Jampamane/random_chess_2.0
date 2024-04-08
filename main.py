@@ -24,7 +24,9 @@ def main(browser):
 
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
-        assert browser.find_element(By.CLASS_NAME, "flipped")
+        WebDriverWait(browser, 3).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "flipped")))
         player = Player("black", browser.page_source)
         opponent = Player("white", browser.page_source)
     except:
@@ -35,18 +37,11 @@ def main(browser):
         opponent()
         action_chains = ActionChains(browser)
     
-    if opponent.is_turn(browser.page_source) == True:
-        opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-        print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
-        while True:
-            if opponent.check_for_move(browser.page_source) == True:
-                opponent.set_positions(browser.page_source, opponent.alive_pieces())
-                player.set_positions(browser.page_source, player.alive_pieces())
-                break
-
-
     while True:
         if player.is_turn(browser.page_source) == True:
+            opponent.print_last_move(browser.page_source)
+            opponent.set_positions(browser.page_source, opponent.alive_pieces())
+            player.set_positions(browser.page_source, player.alive_pieces())
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             if player_moves == None:
                 print("Checkmate bro, you lose")
@@ -59,29 +54,15 @@ def main(browser):
                 piece = browser.find_element(By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
             finally:
                 piece.click()
-                while True:
-                    try:
-                        square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
-                        break
-                    except:
-                        try:
-                            square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
-                            break
-                        except:
-                            pass
-                action_chains.drag_and_drop(piece, square).perform()
-            while True:
-                if player.check_for_move(browser.page_source) == True:
-                    opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                try:
+                    square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
+                except:
+                    square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
+                finally: 
+                    action_chains.drag_and_drop(piece, square).perform()
                     player.set_positions(browser.page_source, player.alive_pieces())
-                    break
-            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
-            while True:
-                if opponent.check_for_move(browser.page_source) == True:
                     opponent.set_positions(browser.page_source, opponent.alive_pieces())
-                    player.set_positions(browser.page_source, player.alive_pieces())
-                    break
+                    player.print_last_move(browser.page_source)
 
 
 if __name__ == "__main__":

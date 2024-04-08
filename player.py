@@ -40,6 +40,34 @@ class Player():
         print(f"{self.username} is {self.text_color}{self.color.upper()}{bcolors.ENDC} and they have {bcolors.FAIL}{self.time_left}{bcolors.ENDC} left on the clock")
         print(f"{self.username} has {bcolors.WARNING}{len(self.alive_pieces())}{bcolors.ENDC} pieces left on the board \n")
 
+    def print_last_move(self, page_source):
+        page = BeautifulSoup(page_source, "html.parser")
+        moves = page.find_all(class_ = f"{self.color} node")
+        if len(moves) == 0:
+            print(f"{self.username} hasn't moved yet\n")
+        move = moves[-1]
+        if len(move) == 2:
+            piece = "Pawn"
+        elif len(move) >= 3:
+            try:
+                int(move[-1])
+                match move[0].lower():
+                    case "k":
+                        piece = "King"
+                    case "r":
+                        piece = "Rook"
+                    case "b":
+                        piece = "Bishop"
+                    case "n":
+                        piece = "Knight"
+                    case "q":
+                        piece = "Queen"
+            except:
+                piece = "Pawn"
+
+        print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
+
+
     def create_dict(self, page_source, sort_color = True) -> dict:
         '''
         Reads the browser's HTML and creates a dictionary with piece and location information.
@@ -152,8 +180,7 @@ class Player():
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
-                # print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
-                return piece
+                return True
         return False
         
     
