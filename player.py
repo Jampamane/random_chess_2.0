@@ -45,27 +45,12 @@ class Player():
         moves = page.find_all(class_ = f"{self.color} node")
         if len(moves) == 0:
             print(f"{self.username} hasn't moved yet\n")
+            return
         move = moves[-1]
-        if len(move) == 2:
-            piece = "Pawn"
-        elif len(move) >= 3:
-            try:
-                int(move[-1])
-                match move[0].lower():
-                    case "k":
-                        piece = "King"
-                    case "r":
-                        piece = "Rook"
-                    case "b":
-                        piece = "Bishop"
-                    case "n":
-                        piece = "Knight"
-                    case "q":
-                        piece = "Queen"
-            except:
-                piece = "Pawn"
 
-        print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
+
+        print(f"{self.username} moved to {self.text_color}{move.text.upper()}{bcolors.ENDC}\n")
+        # their {self.text_color}{str(piece).upper()}{bcolors.ENDC} 
 
 
     def create_dict(self, page_source, sort_color = True) -> dict:

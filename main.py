@@ -20,7 +20,9 @@ def main(browser):
     while not Validate(url, "www.chess.com").success():
         url = input(f"{bcolors.HEADER}Please enter a valid url: {bcolors.ENDC}")
     browser.get(url)
-    time.sleep(3)
+    WebDriverWait(browser, 3).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "board")))
 
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
@@ -29,14 +31,17 @@ def main(browser):
             By.CLASS_NAME, "flipped")))
         player = Player("black", browser.page_source)
         opponent = Player("white", browser.page_source)
+        player()
+        opponent()
     except:
         player = Player("white", browser.page_source)
         opponent = Player("black", browser.page_source)
-    finally:
         player()
         opponent()
+    finally:
         action_chains = ActionChains(browser)
-    
+
+
     while True:
         if player.is_turn(browser.page_source) == True:
             opponent.print_last_move(browser.page_source)
@@ -48,21 +53,35 @@ def main(browser):
                 return
             print(f"{player.username} has {bcolors.WARNING}{len(player_moves)}{bcolors.ENDC} available moves")
             random_piece, random_move = random.choice(player_moves)
-            try:
-                piece = browser.find_element(By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
-            except:
-                piece = browser.find_element(By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
-            finally:
-                piece.click()
+            while True:
+                try:
+                    piece = browser.find_element(By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
+                    piece.click()
+                    break
+                except:
+                    try:
+                        piece = browser.find_element(By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
+                        piece.click()
+                    except:
+                        pass
+            while True:
                 try:
                     square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
-                except:
-                    square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
-                finally: 
                     action_chains.drag_and_drop(piece, square).perform()
-                    player.set_positions(browser.page_source, player.alive_pieces())
-                    opponent.set_positions(browser.page_source, opponent.alive_pieces())
-                    player.print_last_move(browser.page_source)
+                    break
+                except:
+                    try:
+                        square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
+                        action_chains.drag_and_drop(piece, square).perform()
+                        break
+                    except:
+                        pass
+
+            player.set_positions(browser.page_source, player.alive_pieces())
+            opponent.set_positions(browser.page_source, opponent.alive_pieces())
+            player.print_last_move(browser.page_source)
+            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+            print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
 
 
 if __name__ == "__main__":
