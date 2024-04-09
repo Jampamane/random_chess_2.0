@@ -11,7 +11,7 @@ from bcolors import ByteColors
 from player import Player
 from validate_url import Validate
 from chess_login import ChessLogin
-def main(browser):
+def main():
     '''
     Main function. Connects to the chess game and runs the
     main loop to play the chess game. Returns once there are
@@ -166,13 +166,13 @@ if __name__ == "__main__":
         main(browser)
     except KeyboardInterrupt:
         print(f"{ByteColors.FAIL}GAME ENDED UBRUPTLY{ByteColors.ENDC}")
-    main(browser)
+    main()
     while True:
         try:
             continue_ = input(f"{ByteColors.HEADER}"
                               f"Would you like to play again?{ByteColors.ENDC} (y/n) ")
             if continue_.lower() == "y" or continue_.lower() == "yes":
-                main(browser)
+                main()
             elif continue_.lower() == "n" or continue_.lower() == "no":
                 SystemExit()
         except KeyboardInterrupt:

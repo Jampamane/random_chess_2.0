@@ -110,27 +110,26 @@ class Pawn(Piece):
                 if indx == 1:
                     jumping = True
 
-                elif indx in [3, 4]:
+                elif indx in (3, 4):
                     if collision_piece[0] == self.color[0]:
                         pass
                     else:
                         final_moves.append(move)
             except:
                 if indx == 2:
-                    if jumping == True:
+                    if jumping is True:
                         pass
                     elif self.color == "black" and int(self.board_position[1]) == 7:
                         final_moves.append(move)
                     elif self.color == "white" and int(self.board_position[1]) == 2:
                         final_moves.append(move)
-                elif indx == 3 or indx == 4:
+                elif indx in (3, 4):
                     pass
                 else:
                     final_moves.append(move)
         if len(final_moves) == 0:
             return None
-        else:
-            return final_moves
+        return final_moves
 
 class Knight(Piece):
     def __init__(self, color):
@@ -276,12 +275,16 @@ class Bishop(Queen):
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "b"
-        self.possible_moves = {indx: move for indx, move in self.possible_moves.items() if indx > 32}
-        self.lines = [self.down_left_line, self.up_right_line, self.down_right_line, self.up_left_line]
+        self.possible_moves = {indx: move for indx, move in 
+                               self.possible_moves.items() if indx > 32}
+        self.lines = [self.down_left_line, self.up_right_line, 
+                      self.down_right_line, self.up_left_line]
 
 class Rook(Queen):
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "r"
-        self.possible_moves = {indx: move for indx, move in self.possible_moves.items() if indx <= 32}
-        self.lines = [self.down_line, self.up_line, self.right_line, self.left_line]
+        self.possible_moves = {indx: move for indx, move in 
+                               self.possible_moves.items() if indx <= 32}
+        self.lines = [self.down_line, self.up_line, 
+                      self.right_line, self.left_line]

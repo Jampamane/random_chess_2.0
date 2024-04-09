@@ -33,9 +33,9 @@ class Player():
         self.bishop2 = Bishop(color)
         self.king = King(color)
         self.queen = Queen(color)
-        self.pieces = [self.pawn1, self.pawn2, self.pawn3, self.pawn4, 
+        self.pieces = [self.pawn1, self.pawn2, self.pawn3, self.pawn4,
                        self.pawn5, self.pawn6, self.pawn7, self.pawn8,
-                       self.rook1, self.rook2, self.kight1, self.kight2, 
+                       self.rook1, self.rook2, self.kight1, self.kight2,
                        self.bishop1, self.bishop2, self.king, self.queen]
         self.set_positions(page_source, self.pieces)
 
@@ -87,10 +87,10 @@ class Player():
             split = replaced.split() #Splits the div text component into individual values
             for text in split: #Iterates over each individual value
                 try:
-                    assert len(text) == 2 #Test to see if the value is a 2 character piece identifier
-                    if sort_color is True:
+                    assert len(text) == 2 #Test to see if the value 
+                    if sort_color is True: #is a 2 character piece identifier
                         try:
-                            assert self.color[0] == text[0] #Test to see if it's the correct color (white or black)
+                            assert self.color[0] == text[0] #Test for correct color
                         except: #If not correct color set both to None and break
                             current_piece = None
                             current_position = None
@@ -99,7 +99,7 @@ class Player():
                 except:
                     pass
                 try:
-                    assert int(text[-2:]) #Test to see if the last 2 characters can be cast to an int
+                    assert int(text[-2:]) #Test for 2 chars cast to int
                     current_position = text[-2:]
                 except:
                     pass
@@ -120,8 +120,8 @@ class Player():
                     player_piece.set_position(position)
                     piece_list_copy.remove(player_piece)
                     break
-        if len(piece_list_copy): #If there is still a piece left in piece_list, it wasn't found in the HTML and it must be dead
-            for piece in piece_list_copy:
+        if len(piece_list_copy) != 0: #If there is still a piece left in piece_list, 
+            for piece in piece_list_copy: #it wasn't found in the HTML and it must be dead
                 piece.board_position = "00"
 
     def set_attribute(self, page_source, class_name) -> str:
@@ -173,9 +173,9 @@ class Player():
                 piece_dict[piece.board_position]
             except:
                 if str(piece) == "Pawn":
-                    if (self.color == "white" and 
+                    if (self.color == "white" and
                         int(piece.board_position[1]) == 7) or (
-                            self.color == "black" and 
+                            self.color == "black" and
                             int(piece.board_position[1]) == 2):
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
@@ -215,7 +215,7 @@ class Player():
                 pass
             all_the_pieces.pop(piece.board_position)
             all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
-            opponent_moves = {move: "Value don't matter" for piece, move in 
+            opponent_moves = {move: "Value don't matter" for piece, move in
                               opponent.retrieve_final_moves(
                                   page_source, all_the_pieces, opponent_alive_pieces_copy)}
             try:

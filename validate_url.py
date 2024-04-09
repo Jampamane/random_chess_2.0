@@ -1,3 +1,6 @@
+'''
+This modlue helps me validate that urls are good urls and not bad ones
+'''
 import requests
 from bcolors import ByteColors
 
@@ -41,9 +44,13 @@ class Validate():
             print(f"{'INVALID WEBSITE'.center(len(err_msg), '-')}{ByteColors.ENDC}")
             print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
             self.successful = False
+
     def success(self) -> bool:
         '''
         Returns if the validation was successful or not.
         Good url. Good good boy.
         '''
         return self.successful
+
+    def good_boy(self):
+        return "Good boy. Good good boy."
