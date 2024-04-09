@@ -226,24 +226,25 @@ class Queen(Piece):
                                 62:{"forward":6, "horizontal":-6},
                                 63:{"forward":7, "horizontal":-7},
                                 64:{"forward":8, "horizontal":-8}}
-        self.down_line = {indx: value for indx, value in 
+        self.down_line = {indx: value for indx, value in
                           self.possible_moves.items() if indx <= 8}
-        self.up_line = {indx: value for indx, value in 
+        self.up_line = {indx: value for indx, value in
                         self.possible_moves.items() if indx > 8 and indx <= 16}
-        self.right_line = {indx: value for indx, value in 
+        self.right_line = {indx: value for indx, value in
                            self.possible_moves.items() if indx > 16 and indx <= 24}
-        self.left_line = {indx: value for indx, value in 
+        self.left_line = {indx: value for indx, value in
                           self.possible_moves.items() if indx > 24 and indx <= 32}
-        self.down_left_line = {indx: value for indx, value in 
+        self.down_left_line = {indx: value for indx, value in
                                self.possible_moves.items() if indx > 32 and indx <= 40}
-        self.up_right_line = {indx: value for indx, value in 
+        self.up_right_line = {indx: value for indx, value in
                               self.possible_moves.items() if indx > 40 and indx <= 48}
-        self.down_right_line = {indx: value for indx, value in 
+        self.down_right_line = {indx: value for indx, value in
                                 self.possible_moves.items() if indx > 48 and indx <= 56}
-        self.up_left_line = {indx: value for indx, value in 
+        self.up_left_line = {indx: value for indx, value in
                              self.possible_moves.items() if indx > 56 and indx <= 64}
         self.lines = [self.down_line, self.up_line, self.right_line, self.left_line,
-                      self.down_left_line, self.up_right_line, self.down_right_line, self.up_left_line]
+                      self.down_left_line, self.up_right_line, 
+                      self.down_right_line, self.up_left_line]
     
     def final_moves(self, move_list, collisions):
         final_moves = []
