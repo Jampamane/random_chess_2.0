@@ -40,18 +40,44 @@ def main(browser):
         opponent()
     finally:
         action_chains = ActionChains(browser)
+            
 
 
     while True:
         if player.is_turn(browser.page_source) == True:
-            opponent.print_last_move(browser.page_source)
-            opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            player.set_positions(browser.page_source, player.alive_pieces())
+            if player.color == "white":
+                if player.has_moved(browser.page_source) == False:
+                    pass
+                else:
+                    opponent_move_piece = opponent.check_for_move(browser.page_source)
+                    opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                    player.set_positions(browser.page_source, player.alive_pieces())
+                    opponent.print_last_move(browser.page_source, opponent_move_piece)
+            elif player.color == "black":
+                if opponent.has_moved(browser.page_source) == False:
+                    opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+                    print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
+                    while opponent.has_moved(browser.page_source) == False:
+                        pass
+                    opponent_move_piece = opponent.check_for_move(browser.page_source)
+                else:
+                    opponent_move_piece = opponent.check_for_move(browser.page_source)
+                opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                player.set_positions(browser.page_source, player.alive_pieces())
+                opponent.print_last_move(browser.page_source, opponent_move_piece)
+
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
             if player_moves == None:
-                print("Checkmate bro, you lose")
+                page = BeautifulSoup(browser.page_source, "html.parser")
+                selected_move = page.find(class_ = f"{opponent.color} node selected")
+                if selected_move.text[-1] == "#":
+                    print(f"{bcolors.FAIL}GAME OVER{bcolors.ENDC}")
+                    print(f"{bcolors.FAIL}CHECKMATE{bcolors.ENDC}")
+                else:
+                    print(f"{bcolors.FAIL}GAME OVER{bcolors.ENDC}")
+                    print(f"{bcolors.WARNING}STALEMATE{bcolors.ENDC}")
                 return
-            print(f"{player.username} has {bcolors.WARNING}{len(player_moves)}{bcolors.ENDC} available moves")
+            print(f"{player.username.center(25, '-')} has {bcolors.WARNING}{str(len(player_moves)).center(2)}{bcolors.ENDC} available moves between {bcolors.OKGREEN}{str(len(player.alive_pieces())).center(2)}{bcolors.ENDC} pieces")
             random_piece, random_move = random.choice(player_moves)
             while True:
                 try:
@@ -79,17 +105,20 @@ def main(browser):
 
             player.set_positions(browser.page_source, player.alive_pieces())
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            player.print_last_move(browser.page_source)
+            player.print_last_move(browser.page_source, random_piece)
             opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            print(f"{opponent.username} has {bcolors.WARNING}{len(opponent_moves)}{bcolors.ENDC} available moves")
+            if opponent_moves == None:
+                print(f"{bcolors.OKGREEN}GAME OVER{bcolors.ENDC}")
+                print(f"{bcolors.OKGREEN}YOU WIN?{bcolors.ENDC}")
+                return
+            print(f"{opponent.username.center(25, '-')} has {bcolors.WARNING}{str(len(opponent_moves)).center(2)}{bcolors.ENDC} available moves between {bcolors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}{bcolors.ENDC} pieces")
 
 
 if __name__ == "__main__":
     #Establish the selenium browser
     print(f"{bcolors.WARNING}Establishing browser.{bcolors.ENDC}")
     options = ChromeOptions()
-    options.add_argument("--headless") #Start the browser in headless mode
-    options.add_argument("log-level=3") #So it doesn't spam the console with messages
+    options.add_argument("log-level=1") #So it doesn't spam the console with messages
     browser = Chrome(options=options)
 
     #Login to www.chess.com
@@ -126,11 +155,17 @@ if __name__ == "__main__":
         print(f"{bcolors.FAIL}LOGIN FAILED{bcolors.ENDC}")
         quit()
 
+    try:
+        main(browser)
+    except KeyboardInterrupt:
+        print(f"{bcolors.FAIL}GAME ENDED UBRUPTLY{bcolors.ENDC}")
     
     while True:
-        main(browser)
-        continue_ = input("Would you like to play again? (y/n) ")
-        if continue_.lower() == "y" or continue_.lower() == "yes":
-            main(browser)
-        elif continue_.lower() == "n" or continue_.lower() == "no":
-            quit()
+        try:
+            continue_ = input(f"{bcolors.HEADER}Would you like to play again?{bcolors.ENDC} (y/n) ")
+            if continue_.lower() == "y" or continue_.lower() == "yes":
+                main(browser)
+            elif continue_.lower() == "n" or continue_.lower() == "no":
+                quit()
+        except KeyboardInterrupt:
+            print(f"{bcolors.FAIL}GAME ENDED UBRUPTLY{bcolors.ENDC}")
