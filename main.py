@@ -1,15 +1,15 @@
-from player import Player
-from bs4 import BeautifulSoup
-import time
 import random
+import time
+from bs4 import BeautifulSoup
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bcolors import ByteColors
-from selenium.webdriver import Chrome
+from player import Player
 from validate_url import Validate
-from selenium.webdriver.chrome.options import Options as ChromeOptions
 from chess_login import ChessLogin
 def main(browser):
     '''
@@ -103,11 +103,12 @@ def main(browser):
             opponent.set_positions(browser.page_source, opponent.alive_pieces())
             player.print_last_move(browser.page_source, random_piece)
             opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            if opponent_moves == None:
+            if opponent_moves is None:
                 print(f"{ByteColors.OKGREEN}GAME OVER{ByteColors.ENDC}")
                 print(f"{ByteColors.OKGREEN}YOU WIN?{ByteColors.ENDC}")
                 return
             print(f"{opponent.username.center(25, '-')} has {ByteColors.WARNING}{str(len(opponent_moves)).center(2)}{ByteColors.ENDC} available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}{ByteColors.ENDC} pieces")
+            
 if __name__ == "__main__":
     #Establish the selenium browser
     print(f"{ByteColors.WARNING}Establishing browser.{ByteColors.ENDC}")
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         print(f"{ByteColors.OKGREEN}Login successful!{ByteColors.ENDC}")
     except:
         print(f"{ByteColors.FAIL}LOGIN FAILED{ByteColors.ENDC}")
-        quit()
+        SystemExit()
     try:
         main(browser)
     except KeyboardInterrupt:
@@ -158,8 +159,7 @@ if __name__ == "__main__":
             if continue_.lower() == "y" or continue_.lower() == "yes":
                 main(browser)
             elif continue_.lower() == "n" or continue_.lower() == "no":
-                quit()
+                SystemExit()
         except KeyboardInterrupt:
             print(f"{ByteColors.FAIL}GAME ENDED UBRUPTLY{ByteColors.ENDC}")
 
-            
