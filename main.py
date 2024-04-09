@@ -84,15 +84,17 @@ def main(browser):
             while True:
                 try:
                     piece = browser.find_element(
-                        By.CLASS_NAME, 
-                        f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
+                        By.CLASS_NAME,
+                        f"piece.{player.color[0]}{random_piece.char_identifier}"
+                        f".square-{random_piece.board_position}")
                     piece.click()
                     break
                 except:
                     try:
                         piece = browser.find_element(
                             By.CLASS_NAME, 
-                            f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
+                            f"piece.square-{random_piece.board_position}"
+                            f".{player.color[0]}{random_piece.char_identifier}")
                         piece.click()
                     except:
                         pass
@@ -167,7 +169,8 @@ if __name__ == "__main__":
     main(browser)
     while True:
         try:
-            continue_ = input(f"{ByteColors.HEADER}Would you like to play again?{ByteColors.ENDC} (y/n) ")
+            continue_ = input(f"{ByteColors.HEADER}"
+                              f"Would you like to play again?{ByteColors.ENDC} (y/n) ")
             if continue_.lower() == "y" or continue_.lower() == "yes":
                 main(browser)
             elif continue_.lower() == "n" or continue_.lower() == "no":

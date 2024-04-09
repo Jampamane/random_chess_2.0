@@ -8,7 +8,7 @@ class Validate():
     '''
     def __init__(self, url = "", test_url = False) -> None:
         '''
-        Once the class initializes it validates the url.
+        The class initializes and validates the url.
         '''
         try:
             response = requests.get(url, timeout=10)
@@ -18,28 +18,28 @@ class Validate():
                 assert test_url in url, f"Are you connecting to {test_url}?"
             self.successful = True
         except requests.exceptions.SSLError:
-            errormessage = "Are you connecting to an actual URL?"
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(errormessage), '-')}")
-            print(f"{'TIMEOUT MAX RETRIES'.center(len(errormessage), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{errormessage.center(len(errormessage), '-')}{ByteColors.ENDC}")
+            err_msg = "Are you connecting to an actual URL?"
+            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
+            print(f"{'TIMEOUT MAX RETRIES'.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
             self.successful = False
         except requests.exceptions.ConnectionError:
-            errormessage = "Response code for the url is 400 or higher."
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(errormessage), '-')}")
-            print(f"{'FAILED TO CONNECT'.center(len(errormessage), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{errormessage.center(len(errormessage), '-')}{ByteColors.ENDC}")
+            err_msg = "Response code for the url is 400 or higher."
+            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
+            print(f"{'FAILED TO CONNECT'.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
             self.successful = False
         except requests.exceptions.MissingSchema:
-            errormessage = "Are you missing https:// at the beggining of the url?"
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(errormessage), '-')}")
-            print(f"{'MISSING SCHEMA'.center(len(errormessage), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{errormessage.center(len(errormessage), '-')}{ByteColors.ENDC}")
+            err_msg = "Are you missing https:// at the beggining of the url?"
+            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
+            print(f"{'MISSING SCHEMA'.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
             self.successful = False
         except AssertionError as e:
-            errormessage = str(e)
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(errormessage), '-')}")
-            print(f"{'INVALID WEBSITE'.center(len(errormessage), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{errormessage.center(len(errormessage), '-')}{ByteColors.ENDC}")
+            err_msg = str(e)
+            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
+            print(f"{'INVALID WEBSITE'.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
             self.successful = False
     def success(self) -> bool:
         '''

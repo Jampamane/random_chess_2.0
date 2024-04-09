@@ -1,11 +1,12 @@
+from bs4 import BeautifulSoup
 from pieces import Pawn
 from pieces import Knight
 from pieces import Rook
 from pieces import Bishop
 from pieces import King
 from pieces import Queen
-from bs4 import BeautifulSoup
 from bcolors import ByteColors
+
 class Player():
     def __init__(self, color, page_source):
         self.color = color
@@ -13,7 +14,8 @@ class Player():
             self.text_color = ByteColors.OKCYAN
         elif self.color == "black":
             self.text_color = ByteColors.OKBLUE
-        self.username = f"{self.text_color}{self.set_username(page_source).upper()}{ByteColors.ENDC}"
+        self.username = (f"{self.text_color}"
+                         f"{self.set_username(page_source).upper()}{ByteColors.ENDC}")
         self.time_left = self.set_time(page_source)
         self.pawn1 = Pawn(color)
         self.pawn2 = Pawn(color)
@@ -31,8 +33,10 @@ class Player():
         self.bishop2 = Bishop(color)
         self.king = King(color)
         self.queen = Queen(color)
-        self.pieces = [self.pawn1, self.pawn2, self.pawn3, self.pawn4, self.pawn5, self.pawn6, self.pawn7, self.pawn8,
-                       self.rook1, self.rook2, self.kight1, self.kight2, self.bishop1, self.bishop2, self.king, self.queen]
+        self.pieces = [self.pawn1, self.pawn2, self.pawn3, self.pawn4, 
+                       self.pawn5, self.pawn6, self.pawn7, self.pawn8,
+                       self.rook1, self.rook2, self.kight1, self.kight2, 
+                       self.bishop1, self.bishop2, self.king, self.queen]
         self.set_positions(page_source, self.pieces)
 
     def __call__(self) -> None:
@@ -81,7 +85,7 @@ class Player():
         for piece in pieces: #Selects each div compenent that was turned into text
             replaced = piece.replace("\"", "") #Deletes the quotation marks
             split = replaced.split() #Splits the div text component into individual values
-            for text in split:  #Iterates over each individual value
+            for text in split: #Iterates over each individual value
                 try:
                     assert len(text) == 2 #Test to see if the value is a 2 character piece identifier
                     if sort_color is True:
@@ -109,7 +113,7 @@ class Player():
         Uses that information to set the initial position of each piece.
         '''
         dict_ = self.create_dict(page_source).items()
-        piece_list_copy = [piece for piece in piece_list]
+        piece_list_copy = list(piece_list)
         for position, piece in dict_:
             for player_piece in piece_list_copy:
                 if piece[-1] == player_piece.char_identifier:
@@ -156,8 +160,7 @@ class Player():
         page = BeautifulSoup(page_source, "html.parser")
         if page.find(class_=f"{self.color} node selected") is None:
             return True
-        else:
-            return False
+        return False
 
     def check_for_move(self, page_source) -> bool:
         '''
@@ -218,7 +221,7 @@ class Player():
             try:
                 if str(piece) == "King":
                     opponent_moves[move]
-                else:
+                elif str(piece) != "King":
                     opponent_moves[self.king.board_position]
             except:
                 non_check_moves.append((piece, move))
@@ -227,9 +230,8 @@ class Player():
                 all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
             if capture_piece == "":
                 pass
-            else:
+            elif capture_piece != "":
                 opponent_alive_pieces_copy.append(capture_piece)
         if len(non_check_moves) == 0:
             return None
-        else:
-            return non_check_moves
+        return non_check_moves
