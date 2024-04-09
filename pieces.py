@@ -2,7 +2,6 @@ class Piece():
     def __init__(self, color):
         self.color = color
         self.board_position = "00"
-
     def __str__(self) -> str:
         match self.char_identifier:
             case "p":
@@ -17,13 +16,10 @@ class Piece():
                 return "King"
             case "q":
                 return "Queen"
-
     def set_position(self, position):
         self.board_position = position
-
     def current_position(self):
-        return self.board_position
-    
+        return self.board_position  
     def get_potential_moves(self):
         if self.board_position == "00":
             return None
@@ -36,8 +32,7 @@ class Piece():
             potential_vertical = vertical_position + move_dict["forward"]
             potential_move = str(potential_horizontal) + str(potential_vertical)
             move_list.append((indx, potential_move))
-        return move_list
-    
+        return move_list 
     def on_the_board(self, move_list):
         on_the_board = []
         for indx, move in move_list:
@@ -45,8 +40,7 @@ class Piece():
                 if int(move[0]) >= 1 and int(move[0]) <= 8:
                     if int(move[1]) >= 1 and int(move[1]) <= 8:
                         on_the_board.append((indx, move))
-        return on_the_board
-    
+        return on_the_board 
     def detect_collisions(self, move_list, all_piece_positions):
         collisions = {}
         for indx, move in move_list:
@@ -59,7 +53,6 @@ class Piece():
             return None
         else:
             return collisions
-        
     def final_moves(self, move_list, collisions):
         final_moves = []
         for indx, move in move_list:
@@ -75,7 +68,6 @@ class Piece():
             return None
         else:
             return final_moves
-        
     def return_final_moves(self, all_the_pieces):
         potential_moves = self.get_potential_moves()
         on_the_board = self.on_the_board(potential_moves)
@@ -88,9 +80,6 @@ class Piece():
             for move in final_moves_list:
                 final_moves_tuple.append((self, move))
             return final_moves_tuple
-    
-
-
 class Pawn(Piece):
     def __init__(self, color):
         super().__init__(color)
@@ -105,7 +94,6 @@ class Pawn(Piece):
                                    2:{"forward":-2, "horizontal": 0}, 
                                    3:{"forward":-1, "horizontal": 1},
                                    4:{"forward":-1, "horizontal":-1}}
-    
     def final_moves(self, move_list, collisions):
         final_moves = []
         jumping = False

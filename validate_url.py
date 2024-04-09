@@ -1,12 +1,19 @@
 import requests
 
 class Validate():
+    '''
+    This is just to validate that the url is actually a good url and not a bad one.
+    Bad url. Bad bad boy.
+    '''
     def __init__(self, url = "", test_url = False) -> None:
+        '''
+        Once the class initializes it validates the url.
+        '''
         WARNING = "\033[93m"
         FAIL = "\033[91m"
         ENDC = "\033[0m"
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
             if not response:
                 raise requests.exceptions.ConnectionError
             if test_url:
@@ -36,6 +43,10 @@ class Validate():
             print(f"{'INVALID WEBSITE'.center(len(errormessage), '-')}{ENDC}")
             print(f"{WARNING}{errormessage.center(len(errormessage), '-')}{ENDC}")
             self.successful = False
-    
-    def success(self):
+    def success(self) -> bool:
+        '''
+        Returns if the validation was successful or not.
+        Good url. Good good boy.
+        '''
         return self.successful
+    
