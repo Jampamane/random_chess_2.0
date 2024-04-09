@@ -47,4 +47,3 @@ class Validate():
         Good url. Good good boy.
         '''
         return self.successful
-    

@@ -84,13 +84,15 @@ def main(browser):
             while True:
                 try:
                     piece = browser.find_element(
-                        By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
+                        By.CLASS_NAME, 
+                        f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
                     piece.click()
                     break
                 except:
                     try:
                         piece = browser.find_element(
-                        By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
+                            By.CLASS_NAME, 
+                            f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
                         piece.click()
                     except:
                         pass

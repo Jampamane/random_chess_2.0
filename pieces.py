@@ -57,8 +57,7 @@ class Piece():
                 pass
         if len(collisions) == 0:
             return None
-        else:
-            return collisions
+        return collisions
 
     def final_moves(self, move_list, collisions):
         final_moves = []
@@ -73,8 +72,7 @@ class Piece():
                 final_moves.append(move)
         if len(final_moves) == 0:
             return None
-        else:
-            return final_moves
+        return final_moves
 
     def return_final_moves(self, all_the_pieces):
         potential_moves = self.get_potential_moves()
@@ -83,11 +81,10 @@ class Piece():
         final_moves_list = self.final_moves(on_the_board, collisions)
         if final_moves_list is None:
             return None
-        else:
-            final_moves_tuple = []
-            for move in final_moves_list:
-                final_moves_tuple.append((self, move))
-            return final_moves_tuple
+        final_moves_tuple = []
+        for move in final_moves_list:
+            final_moves_tuple.append((self, move))
+        return final_moves_tuple
 
 class Pawn(Piece):
     def __init__(self, color):
@@ -113,7 +110,7 @@ class Pawn(Piece):
                 if indx == 1:
                     jumping = True
 
-                elif indx == 3 or indx == 4:
+                elif indx in [3, 4]:
                     if collision_piece[0] == self.color[0]:
                         pass
                     else:
@@ -264,17 +261,15 @@ class Queen(Piece):
                         collision_piece = collisions[test_square]
                         if collision_piece[0] == self.color[0]:
                             break
-                        else:
-                            final_moves.append(test_square)
-                            break
+                        final_moves.append(test_square)
+                        break
                     except:
                         final_moves.append(test_square)
                 except:
                     break
         if len(final_moves) == 0:
             return None
-        else:
-            return final_moves
+        return final_moves
 
 class Bishop(Queen):
     def __init__(self, color):
@@ -289,4 +284,3 @@ class Rook(Queen):
         self.char_identifier = "r"
         self.possible_moves = {indx: move for indx, move in self.possible_moves.items() if indx <= 32}
         self.lines = [self.down_line, self.up_line, self.right_line, self.left_line]
-

@@ -36,8 +36,12 @@ class Player():
         self.set_positions(page_source, self.pieces)
 
     def __call__(self) -> None:
-        print(f"{self.username} is {self.text_color}{self.color.upper()}{ByteColors.ENDC} and they have {ByteColors.FAIL}{self.time_left}{ByteColors.ENDC} left on the clock")
-        print(f"{self.username} has {ByteColors.WARNING}{len(self.alive_pieces())}{ByteColors.ENDC} pieces left on the board \n")
+        print(f"{self.username} is "
+              f"{self.text_color}{self.color.upper()}{ByteColors.ENDC}"
+              f" and they have {ByteColors.FAIL}{self.time_left}{ByteColors.ENDC}"
+              f" left on the clock")
+        print(f"{self.username} has {ByteColors.WARNING}{len(self.alive_pieces())}{ByteColors.ENDC}"
+              f" pieces left on the board \n")
 
     def has_moved(self, page_source):
         page = BeautifulSoup(page_source, "html.parser")
@@ -48,7 +52,7 @@ class Player():
         if len(moves) == 0:
             return False
         return True
-        
+
     def print_last_move(self, page_source, piece):
         page = BeautifulSoup(page_source, "html.parser")
         moves = page.find_all(class_ = f"{self.color} node")
@@ -60,9 +64,11 @@ class Player():
             return False
         move = moves[-1]
         self.set_time(page_source)
-        print(f"{self.username.center(25, '-')} moved their {self.text_color}{str(piece).upper()}{ByteColors.ENDC} to {self.text_color}{str(move.text).upper()}{ByteColors.ENDC}\n")
+        print(f"{self.username.center(25, '-')} moved their "
+              f"{self.text_color}{str(piece).upper()}{ByteColors.ENDC} to "
+              f"{self.text_color}{str(move.text).upper()}{ByteColors.ENDC}\n")
         return move
-    
+
     def create_dict(self, page_source, sort_color = True) -> dict:
         '''
         Reads the browser's HTML and creates a dictionary with piece and location information.
@@ -96,7 +102,7 @@ class Player():
             if current_position and current_piece: #Update dictionary only if correct color
                 piece_dict[current_position] = current_piece
         return piece_dict
-    
+
     def set_positions(self, page_source, piece_list) -> None:
         '''
         Calls the create_dict function to create a dictionary with piece and location information.
@@ -137,22 +143,22 @@ class Player():
     def set_username(self, page_source) -> str:
         username = self.set_attribute(page_source, "user-username-white")
         return username
-    
+
     def set_time(self, page_source) -> str:
         clock_time = self.set_attribute(page_source, "clock-time-monospace")
         return clock_time
-    
+
     def alive_pieces(self) -> list:
         pieces = [piece for piece in self.pieces if piece.board_position != "00"]
         return pieces
-    
+
     def is_turn(self, page_source) -> bool:
         page = BeautifulSoup(page_source, "html.parser")
         if page.find(class_=f"{self.color} node selected") is None:
             return True
         else:
             return False
-        
+
     def check_for_move(self, page_source) -> bool:
         '''
         Function that is used exclusively to figure out where the opponent has moved
@@ -164,14 +170,17 @@ class Player():
                 piece_dict[piece.board_position]
             except:
                 if str(piece) == "Pawn":
-                    if (self.color == "white" and int(piece.board_position[1]) == 7) or (self.color == "black" and int(piece.board_position[1]) == 2):
+                    if (self.color == "white" and 
+                        int(piece.board_position[1]) == 7) or (
+                            self.color == "black" and 
+                            int(piece.board_position[1]) == 2):
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
                         self.set_positions(page_source, self.pieces)
                 return str(piece)
         return False
-    
+
     def retrieve_final_moves(self, page_source, all_pieces = None, piece_list = None):
         final_moves = []
         if piece_list is None:
@@ -186,12 +195,13 @@ class Player():
             except:
                 pass
         return final_moves
-    
+
     def retrieve_non_check_moves(self, page_source, opponent):
         player_potential_moves = self.retrieve_final_moves(page_source)
         all_the_pieces = self.create_dict(page_source, sort_color=False)
         opponent_alive_pieces_copy = opponent.alive_pieces()
-        opponent_current_positions = {piece.board_position: piece for piece in opponent.alive_pieces()}
+        opponent_current_positions = {
+            piece.board_position: piece for piece in opponent.alive_pieces()}
         non_check_moves = []
         capture_piece = ""
         for piece, move in player_potential_moves:
@@ -202,7 +212,9 @@ class Player():
                 pass
             all_the_pieces.pop(piece.board_position)
             all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
-            opponent_moves = {move: "Value don't matter" for piece, move in opponent.retrieve_final_moves(page_source, all_the_pieces, opponent_alive_pieces_copy)}
+            opponent_moves = {move: "Value don't matter" for piece, move in 
+                              opponent.retrieve_final_moves(
+                                  page_source, all_the_pieces, opponent_alive_pieces_copy)}
             try:
                 if str(piece) == "King":
                     opponent_moves[move]
@@ -221,4 +233,3 @@ class Player():
             return None
         else:
             return non_check_moves
-        
