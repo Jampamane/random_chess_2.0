@@ -18,7 +18,7 @@ def main(browser):
     no more moves.
     '''
     #Connect to the current game being played
-    url = input(f"{ByteColors.HEADER}Please enter the url for the chess game: {ByteColors.ENDC}") 
+    url = input(f"{ByteColors.HEADER}Please enter the url for the chess game: {ByteColors.ENDC}")
     while not Validate(url, "www.chess.com").success():
         url = input(f"{ByteColors.HEADER}Please enter a valid url: {ByteColors.ENDC}")
     browser.get(url)
@@ -55,7 +55,8 @@ def main(browser):
                 if opponent.has_moved(browser.page_source) is False:
                     opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
                     print(f"{opponent.username} has "
-                            f"{ByteColors.WARNING}{len(opponent_moves)}{ByteColors.ENDC} available moves")
+                            f"{ByteColors.WARNING}{len(opponent_moves)}{ByteColors.ENDC}"
+                            f" available moves")
                     while opponent.has_moved(browser.page_source) is False:
                         pass
                     opponent_move_piece = opponent.check_for_move(browser.page_source)
@@ -77,8 +78,8 @@ def main(browser):
                 return
             print(f"{player.username.center(25, '-')}"
                     f" has {ByteColors.WARNING}{str(len(player_moves)).center(2)}{ByteColors.ENDC}"
-                    f" available moves between {ByteColors.OKGREEN}{str(len(player.alive_pieces())).center(2)}"
-                    f"{ByteColors.ENDC} pieces")
+                    f" available moves between {ByteColors.OKGREEN}"
+                    f"{str(len(player.alive_pieces())).center(2)}{ByteColors.ENDC} pieces")
             random_piece, random_move = random.choice(player_moves)
             while True:
                 try:
@@ -89,7 +90,7 @@ def main(browser):
                 except:
                     try:
                         piece = browser.find_element(
-                            By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
+                        By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
                         piece.click()
                     except:
                         pass
@@ -171,4 +172,3 @@ if __name__ == "__main__":
                 SystemExit()
         except KeyboardInterrupt:
             print(f"{ByteColors.FAIL}GAME ENDED UBRUPTLY{ByteColors.ENDC}")
-
