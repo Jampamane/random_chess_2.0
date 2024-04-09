@@ -3,7 +3,7 @@ import time
 from bs4 import BeautifulSoup
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.common.action_chains import ActionChains 
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -42,9 +42,9 @@ def main(browser):
     finally:
         action_chains = ActionChains(browser)
     while True:
-        if player.is_turn(browser.page_source) == True:
+        if player.is_turn(browser.page_source) is True:
             if player.color == "white":
-                if player.has_moved(browser.page_source) == False:
+                if player.has_moved(browser.page_source) is False:
                     pass
                 else:
                     opponent_move_piece = opponent.check_for_move(browser.page_source)
@@ -52,10 +52,11 @@ def main(browser):
                     player.set_positions(browser.page_source, player.alive_pieces())
                     opponent.print_last_move(browser.page_source, opponent_move_piece)
             elif player.color == "black":
-                if opponent.has_moved(browser.page_source) == False:
+                if opponent.has_moved(browser.page_source) is False:
                     opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-                    print(f"{opponent.username} has {ByteColors.WARNING}{len(opponent_moves)}{ByteColors.ENDC} available moves")
-                    while opponent.has_moved(browser.page_source) == False:
+                    print(f"{opponent.username} has "
+                            f"{ByteColors.WARNING}{len(opponent_moves)}{ByteColors.ENDC} available moves")
+                    while opponent.has_moved(browser.page_source) is False:
                         pass
                     opponent_move_piece = opponent.check_for_move(browser.page_source)
                 else:
@@ -74,16 +75,21 @@ def main(browser):
                     print(f"{ByteColors.FAIL}GAME OVER{ByteColors.ENDC}")
                     print(f"{ByteColors.WARNING}STALEMATE{ByteColors.ENDC}")
                 return
-            print(f"{player.username.center(25, '-')} has {ByteColors.WARNING}{str(len(player_moves)).center(2)}{ByteColors.ENDC} available moves between {ByteColors.OKGREEN}{str(len(player.alive_pieces())).center(2)}{ByteColors.ENDC} pieces")
+            print(f"{player.username.center(25, '-')}"
+                    f" has {ByteColors.WARNING}{str(len(player_moves)).center(2)}{ByteColors.ENDC}"
+                    f" available moves between {ByteColors.OKGREEN}{str(len(player.alive_pieces())).center(2)}"
+                    f"{ByteColors.ENDC} pieces")
             random_piece, random_move = random.choice(player_moves)
             while True:
                 try:
-                    piece = browser.find_element(By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
+                    piece = browser.find_element(
+                        By.CLASS_NAME, f"piece.{player.color[0]}{random_piece.char_identifier}.square-{random_piece.board_position}")
                     piece.click()
                     break
                 except:
                     try:
-                        piece = browser.find_element(By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
+                        piece = browser.find_element(
+                            By.CLASS_NAME, f"piece.square-{random_piece.board_position}.{player.color[0]}{random_piece.char_identifier}")
                         piece.click()
                     except:
                         pass
@@ -107,8 +113,11 @@ def main(browser):
                 print(f"{ByteColors.OKGREEN}GAME OVER{ByteColors.ENDC}")
                 print(f"{ByteColors.OKGREEN}YOU WIN?{ByteColors.ENDC}")
                 return
-            print(f"{opponent.username.center(25, '-')} has {ByteColors.WARNING}{str(len(opponent_moves)).center(2)}{ByteColors.ENDC} available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}{ByteColors.ENDC} pieces")
-            
+            print(f"{opponent.username.center(25, '-')}"
+                  f" has {ByteColors.WARNING}{str(len(opponent_moves)).center(2)}{ByteColors.ENDC}"
+                  f" available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}"
+                  f"{ByteColors.ENDC} pieces")
+
 if __name__ == "__main__":
     #Establish the selenium browser
     print(f"{ByteColors.WARNING}Establishing browser.{ByteColors.ENDC}")
