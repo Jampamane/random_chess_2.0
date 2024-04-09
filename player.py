@@ -40,6 +40,33 @@ class Player():
         print(f"{self.username} is {self.text_color}{self.color.upper()}{bcolors.ENDC} and they have {bcolors.FAIL}{self.time_left}{bcolors.ENDC} left on the clock")
         print(f"{self.username} has {bcolors.WARNING}{len(self.alive_pieces())}{bcolors.ENDC} pieces left on the board \n")
 
+    def has_moved(self, page_source):
+        page = BeautifulSoup(page_source, "html.parser")
+        moves = page.find_all(class_ = f"{self.color} node")
+        selected_move = page.find(class_ = f"{self.color} node selected")
+        if selected_move:
+            moves.append(selected_move)
+        if len(moves) == 0:
+            return False
+        else:
+            return True
+
+    def print_last_move(self, page_source, piece):
+        page = BeautifulSoup(page_source, "html.parser")
+        moves = page.find_all(class_ = f"{self.color} node")
+        selected_move = page.find(class_ = f"{self.color} node selected")
+        if selected_move:
+            moves.append(selected_move)
+        if len(moves) == 0:
+            print(f"{self.username.center(25, '-')} hasn't moved yet\n")
+            return False
+        move = moves[-1]
+        self.set_time(page_source)
+        print(f"{self.username.center(25, '-')} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{str(move.text).upper()}{bcolors.ENDC}\n")
+        return move
+        
+
+
     def create_dict(self, page_source, sort_color = True) -> dict:
         '''
         Reads the browser's HTML and creates a dictionary with piece and location information.
@@ -137,47 +164,10 @@ class Player():
         else:
             return False
 
-    def is_check(self, move):
-        if "+" in str(move):
-            print(f"{bcolors.WARNING}{'CHECK'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_capture(self, move):
-        if "x" in str(move):
-            print(f"{bcolors.WARNING}{'CAPTURE'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_checkmate(self, move):
-        if "#" in str(move):
-            print(f"{bcolors.FAIL}{'CHECKMATE'.center(25, '-')}{bcolors.ENDC}")
-            return True
-        else:
-            return False
-        
-    def is_game_over(self, page_source):
-        page = BeautifulSoup(page_source, "html.parser")
-        if page.find(class_="white game-result") != None:
-            if self.color == "white":
-                print(f"{bcolors.OKGREEN}{'YOU WIN'.center(25, '-')}{bcolors.ENDC}")
-                return "win"
-            else:
-                print(f"{bcolors.FAIL}{'YOU LOSE'.center(25, '-')}{bcolors.ENDC}")
-                return "lose"
-        elif page.find(class_="black game-result") != None:
-            if self.color == "black":
-                print(f"{bcolors.OKGREEN}{'YOU WIN'.center(25, '-')}{bcolors.ENDC}")
-                return "win"
-            else:
-                print(f"{bcolors.FAIL}{'YOU LOSE'.center(25, '-')}{bcolors.ENDC}")
-                return "lose"
-        else:
-            return False
-
     def check_for_move(self, page_source) -> bool:
+        '''
+        Function that is used exclusively to figure out where the opponent has moved
+        '''
         piece_dict = self.create_dict(page_source)
         piece_list = self.alive_pieces()
         for piece in piece_list:
@@ -189,17 +179,16 @@ class Player():
                         self.pieces.remove(piece)
                         piece = Queen(self.color)
                         self.pieces.append(piece)
-                page = BeautifulSoup(page_source, "html.parser")
-                move = page.find(class_=f"{self.color} node selected")
-                print(f"{self.username} moved their {self.text_color}{str(piece).upper()}{bcolors.ENDC} to {self.text_color}{move.text.upper()}{bcolors.ENDC}")
-                return True
+                        self.set_positions(page_source, self.pieces)
+                return str(piece)
         return False
         
     
-    def retrieve_final_moves(self, page_source, all_pieces = None):
-        piece_list = self.alive_pieces()
+    def retrieve_final_moves(self, page_source, all_pieces = None, piece_list = None):
         final_moves = []
-        if not all_pieces:
+        if piece_list == None:
+            piece_list = self.alive_pieces()
+        if all_pieces == None:
             all_pieces = self.create_dict(page_source, sort_color=False)
         for piece in piece_list:
             moves = piece.return_final_moves(all_pieces)
@@ -213,11 +202,19 @@ class Player():
     def retrieve_non_check_moves(self, page_source, opponent):
         player_potential_moves = self.retrieve_final_moves(page_source)
         all_the_pieces = self.create_dict(page_source, sort_color=False)
+        opponent_alive_pieces_copy = opponent.alive_pieces()
+        opponent_current_positions = {piece.board_position: piece for piece in opponent.alive_pieces()}
         non_check_moves = []
+        capture_piece = ""
         for piece, move in player_potential_moves:
+            try:
+                capture_piece = opponent_current_positions[move]
+                opponent_alive_pieces_copy.remove(capture_piece)
+            except:
+                pass
             all_the_pieces.pop(piece.board_position)
             all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
-            opponent_moves = {move: "Value don't matter" for piece, move in opponent.retrieve_final_moves(page_source, all_the_pieces)}
+            opponent_moves = {move: "Value don't matter" for piece, move in opponent.retrieve_final_moves(page_source, all_the_pieces, opponent_alive_pieces_copy)}
             try:
                 if str(piece) == "King":
                     opponent_moves[move]
@@ -228,6 +225,10 @@ class Player():
             finally:
                 all_the_pieces.pop(move)
                 all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
+            if capture_piece == "":
+                pass
+            else:
+                opponent_alive_pieces_copy.append(capture_piece)
         if len(non_check_moves) == 0:
             return None
         else:
