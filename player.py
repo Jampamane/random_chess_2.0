@@ -34,7 +34,7 @@ class Player():
         self.pieces = [self.pawn1, self.pawn2, self.pawn3, self.pawn4, self.pawn5, self.pawn6, self.pawn7, self.pawn8,
                        self.rook1, self.rook2, self.kight1, self.kight2, self.bishop1, self.bishop2, self.king, self.queen]
         self.set_positions(page_source, self.pieces)
-        
+
     def __call__(self) -> None:
         print(f"{self.username} is {self.text_color}{self.color.upper()}{ByteColors.ENDC} and they have {ByteColors.FAIL}{self.time_left}{ByteColors.ENDC} left on the clock")
         print(f"{self.username} has {ByteColors.WARNING}{len(self.alive_pieces())}{ByteColors.ENDC} pieces left on the board \n")
@@ -47,8 +47,7 @@ class Player():
             moves.append(selected_move)
         if len(moves) == 0:
             return False
-        else:
-            return True
+        return True
         
     def print_last_move(self, page_source, piece):
         page = BeautifulSoup(page_source, "html.parser")
@@ -79,7 +78,7 @@ class Player():
             for text in split:  #Iterates over each individual value
                 try:
                     assert len(text) == 2 #Test to see if the value is a 2 character piece identifier
-                    if sort_color == True:
+                    if sort_color is True:
                         try:
                             assert self.color[0] == text[0] #Test to see if it's the correct color (white or black)
                         except: #If not correct color set both to None and break
@@ -149,7 +148,7 @@ class Player():
     
     def is_turn(self, page_source) -> bool:
         page = BeautifulSoup(page_source, "html.parser")
-        if page.find(class_=f"{self.color} node selected") == None:
+        if page.find(class_=f"{self.color} node selected") is None:
             return True
         else:
             return False
@@ -175,9 +174,9 @@ class Player():
     
     def retrieve_final_moves(self, page_source, all_pieces = None, piece_list = None):
         final_moves = []
-        if piece_list == None:
+        if piece_list is None:
             piece_list = self.alive_pieces()
-        if all_pieces == None:
+        if all_pieces is None:
             all_pieces = self.create_dict(page_source, sort_color=False)
         for piece in piece_list:
             moves = piece.return_final_moves(all_pieces)

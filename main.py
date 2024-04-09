@@ -65,7 +65,7 @@ def main(browser):
                 player.set_positions(browser.page_source, player.alive_pieces())
                 opponent.print_last_move(browser.page_source, opponent_move_piece)
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
-            if player_moves == None:
+            if player_moves is None:
                 page = BeautifulSoup(browser.page_source, "html.parser")
                 selected_move = page.find(class_ = f"{opponent.color} node selected")
                 if selected_move.text[-1] == "#":
