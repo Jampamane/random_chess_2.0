@@ -82,28 +82,31 @@ class Player():
         board = page.find("wc-chess-board")
         positions = board.find_all("div", lambda text: "piece" in text.lower())
         pieces = [str(piece) for piece in positions]
-        for piece in pieces: #Selects each div compenent that was turned into text
-            replaced = piece.replace("\"", "") #Deletes the quotation marks
-            split = replaced.split() #Splits the div text component into individual values
-            for text in split: #Iterates over each individual value
-                try:
-                    assert len(text) == 2 #Test to see if the value 
-                    if sort_color is True: #is a 2 character piece identifier
-                        try:
-                            assert self.color[0] == text[0] #Test for correct color
-                        except: #If not correct color set both to None and break
+        #Selects each div compenent that was turned into text
+        for piece in pieces: 
+            #Deletes the quotation marks and
+            #splits the div text component into individual values
+            piece_text = piece.replace("\"", "").split()
+            #Iterates over each individual value
+            for text in piece_text: #div br piece-88
+                #Test to see if the value is a 2 character piece identifier
+                if len(text) == 2: 
+                    if sort_color is True:
+                        if self.color[0] == text[0]: #Test for correct color
+                            #If not correct color set both to None and break
                             current_piece = None
                             current_position = None
                             break
-                    current_piece = text
-                except:
-                    pass
+                    elif sort_color is False:
+                        current_piece = text
                 try:
-                    assert int(text[-2:]) #Test for 2 chars cast to int
-                    current_position = text[-2:]
-                except:
+                    int(text[-2:]) #Test for 2 chars cast to int
+                except ValueError:
                     pass
-            if current_position and current_piece: #Update dictionary only if correct color
+                else:
+                    current_position = text[-2:]
+            #Update dictionary if values aren't None
+            if current_position is not None and current_piece is not None: 
                 piece_dict[current_position] = current_piece
         return piece_dict
 
@@ -131,19 +134,20 @@ class Player():
         '''
         page = BeautifulSoup(page_source, "html.parser")
         attributes = page.find_all(class_=class_name)
+        flipped = page.find(class_="flipped")
         attribute = ""
-        try:
-            assert page.find(class_="flipped")
+        if flipped is not None:
             if self.color == "black":
                 attribute = attributes[1].get_text()
             elif self.color == "white":
                 attribute = attributes[0].get_text()
-        except:
+        elif flipped is None:
             if self.color == "black":
                 attribute = attributes[0].get_text()
             elif self.color == "white":
                 attribute = attributes[1].get_text()
         return attribute
+
     def set_username(self, page_source) -> str:
         username = self.set_attribute(page_source, "user-username-white")
         return username
@@ -171,7 +175,7 @@ class Player():
         for piece in piece_list:
             try:
                 piece_dict[piece.board_position]
-            except:
+            except KeyError:
                 if str(piece) == "Pawn":
                     if (self.color == "white" and
                         int(piece.board_position[1]) == 7) or (
@@ -192,11 +196,11 @@ class Player():
             all_pieces = self.create_dict(page_source, sort_color=False)
         for piece in piece_list:
             moves = piece.return_final_moves(all_pieces)
-            try:
-                for move in moves:
-                    final_moves.append(move)
-            except:
-                pass
+            if moves is not None:
+                for piece, move in moves:
+                    final_moves.append((piece, move))
+        if len(final_moves == 0):
+            return None
         return final_moves
 
     def retrieve_non_check_moves(self, page_source, opponent):
@@ -206,13 +210,14 @@ class Player():
         opponent_current_positions = {
             piece.board_position: piece for piece in opponent.alive_pieces()}
         non_check_moves = []
-        capture_piece = ""
         for piece, move in player_potential_moves:
+            capture_piece = None
             try:
                 capture_piece = opponent_current_positions[move]
-                opponent_alive_pieces_copy.remove(capture_piece)
-            except:
+            except KeyError:
                 pass
+            else:
+                opponent_alive_pieces_copy.remove(capture_piece)
             all_the_pieces.pop(piece.board_position)
             all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
             opponent_moves = {move: "Value don't matter" for piece, move in
@@ -223,14 +228,12 @@ class Player():
                     opponent_moves[move]
                 elif str(piece) != "King":
                     opponent_moves[self.king.board_position]
-            except:
+            except KeyError:
                 non_check_moves.append((piece, move))
             finally:
                 all_the_pieces.pop(move)
                 all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
-            if capture_piece == "":
-                pass
-            elif capture_piece != "":
+            if capture_piece is not None:
                 opponent_alive_pieces_copy.append(capture_piece)
         if len(non_check_moves) == 0:
             return None

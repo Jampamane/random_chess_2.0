@@ -1,5 +1,6 @@
 import random
 import time
+import selenium
 from bs4 import BeautifulSoup
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -11,6 +12,7 @@ from bcolors import ByteColors
 from player import Player
 from validate_url import Validate
 from chess_login import ChessLogin
+
 def main():
     '''
     Main function. Connects to the chess game and runs the
@@ -19,7 +21,7 @@ def main():
     '''
     #Connect to the current game being played
     url = input(f"{ByteColors.HEADER}Please enter the url for the chess game: {ByteColors.ENDC}")
-    while not Validate(url, "www.chess.com").success():
+    while Validate(url, "www.chess.com").success() is False:
         url = input(f"{ByteColors.HEADER}Please enter a valid url: {ByteColors.ENDC}")
     browser.get(url)
     WebDriverWait(browser, 3).until(
@@ -123,13 +125,7 @@ def main():
                   f" available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}"
                   f"{ByteColors.ENDC} pieces")
 
-if __name__ == "__main__":
-    #Establish the selenium browser
-    print(f"{ByteColors.WARNING}Establishing browser.{ByteColors.ENDC}")
-    options = ChromeOptions()
-    options.add_argument("log-level=3") #So it doesn't spam the console with messages
-    browser = Chrome(options=options)
-
+def login():
     #Login to www.chess.com
     browser.get("https://www.chess.com/")
     print(f"{ByteColors.WARNING}Attempting to login.{ByteColors.ENDC}")
@@ -152,16 +148,25 @@ if __name__ == "__main__":
             By.CLASS_NAME, "login-space-top-large")))
     login_button.click()
     print(f"{ByteColors.WARNING}Credentials submitted.{ByteColors.ENDC}")
-    home_username = WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((
             By.CLASS_NAME, "home-username-link")))
     #Verify the login succeeded
-    try:
-        assert "www.chess.com/home" in browser.current_url
+    if "www.chess.com/home" in browser.current_url:
         print(f"{ByteColors.OKGREEN}Login successful!{ByteColors.ENDC}")
-    except:
+    else:
         print(f"{ByteColors.FAIL}LOGIN FAILED{ByteColors.ENDC}")
         SystemExit()
+
+if __name__ == "__main__":
+    #Establish the selenium browser
+    print(f"{ByteColors.WARNING}Establishing browser.{ByteColors.ENDC}")
+    options = ChromeOptions()
+    options.add_argument("log-level=3") #So it doesn't spam the console with messages
+    browser = Chrome(options=options)
+
+    login()
+    
     try:
         main(browser)
     except KeyboardInterrupt:
