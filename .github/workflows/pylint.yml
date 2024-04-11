@@ -21,6 +21,7 @@ jobs:
         pip install selenium
         pip install bs4
         pip install requests
-    - name: Analysing the code with pylint
+    - name: Analysing the code with ruff
       run: |
+        ruff check $(git ls-files '*.py')
         ruff format $(git ls-files '*.py')
