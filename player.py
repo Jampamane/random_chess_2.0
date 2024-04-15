@@ -238,27 +238,3 @@ class Player():
         if len(non_check_moves) == 0:
             return None
         return non_check_moves
-
-class White(Player):
-    def __init__(self, color = "white"):
-        super().__init__(color)
-        self.pawn1.board_position = "12"
-        self.pawn2.board_position = "22"
-        self.pawn3.board_position = "32"
-        self.pawn4.board_position = "42"
-        self.pawn5.board_position = "52"
-        self.pawn6.board_position = "62"
-        self.pawn7.board_position = "72"
-        self.pawn8.board_position = "82"
-        self.rook1.board_position = "11"
-        self.rook2.board_position = "81"
-        self.kight1.board_position= "21"
-        self.kight2.board_position= "71"
-        self.bishop1.board_position="31"
-        self.bishop2.board_position="61"
-        self.king.board_position  = "51"
-        self.queen.board_position = "41"
-
-class Black(Player):
-    def __init__(self, color = "black"):
-        super().__init__(color)

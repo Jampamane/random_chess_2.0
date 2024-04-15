@@ -7,6 +7,7 @@ import rich
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress
+from rich.live import Live
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -73,9 +74,6 @@ def create_table(name):
     table.add_column("Black # of moves")
     table.add_column("Black actual move")
     table.add_column("Black time left")
-    table.add_row("p", "w", "r", "w", "g", "r")
-    page = BeautifulSoup(browser.page_source, "html.parser")
-    white_moves = page.findAll(class_="white node")
 
     return table
 def main():
@@ -87,7 +85,7 @@ def main():
     
     table = create_table("Chess Game")
     console.print(table)
-    '''
+
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
         browser.find_element(By.CLASS_NAME, "flipped")
@@ -101,89 +99,84 @@ def main():
         action_chains = ActionChains(browser)
         
     
-
-    while True:
-        if player.is_turn(browser.page_source) is True:
-            if player.color == "white":
-                if player.has_moved(browser.page_source) is False:
-                    pass
-                else:
-                    opponent_move_piece = opponent.check_for_move(browser.page_source)
+    with Live(table) as live:
+        while True:
+            if player.is_turn(browser.page_source) is True:
+                if player.color == "white":
+                    if player.has_moved(browser.page_source) is True:
+                        opponent_move_piece = opponent.check_for_move(browser.page_source)
+                        opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                        player.set_positions(browser.page_source, player.alive_pieces())
+                        opponent.print_last_move(browser.page_source, opponent_move_piece)
+                elif player.color == "black":
+                    if opponent.has_moved(browser.page_source) is False:
+                        opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+                        while opponent.has_moved(browser.page_source) is False:
+                            pass
+                        opponent_move_piece = opponent.check_for_move(browser.page_source)
+                    else:
+                        opponent_move_piece = opponent.check_for_move(browser.page_source)
                     opponent.set_positions(browser.page_source, opponent.alive_pieces())
                     player.set_positions(browser.page_source, player.alive_pieces())
                     opponent.print_last_move(browser.page_source, opponent_move_piece)
-            elif player.color == "black":
-                if opponent.has_moved(browser.page_source) is False:
-                    opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-                    print(f"{opponent.username} has "
-                            f"{ByteColors.WARNING}{len(opponent_moves)}{ByteColors.ENDC}"
-                            f" available moves")
-                    while opponent.has_moved(browser.page_source) is False:
-                        pass
-                    opponent_move_piece = opponent.check_for_move(browser.page_source)
-                else:
-                    opponent_move_piece = opponent.check_for_move(browser.page_source)
-                opponent.set_positions(browser.page_source, opponent.alive_pieces())
-                player.set_positions(browser.page_source, player.alive_pieces())
-                opponent.print_last_move(browser.page_source, opponent_move_piece)
-            player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
-            if player_moves is None:
-                page = BeautifulSoup(browser.page_source, "html.parser")
-                selected_move = page.find(class_ = f"{opponent.color} node selected")
-                if selected_move.text[-1] == "#":
-                    print(f"{ByteColors.FAIL}GAME OVER{ByteColors.ENDC}")
-                    print(f"{ByteColors.FAIL}CHECKMATE{ByteColors.ENDC}")
-                else:
-                    print(f"{ByteColors.FAIL}GAME OVER{ByteColors.ENDC}")
-                    print(f"{ByteColors.WARNING}STALEMATE{ByteColors.ENDC}")
-                return
-            print(f"{player.username.center(25, '-')}"
-                    f" has {ByteColors.WARNING}{str(len(player_moves)).center(2)}{ByteColors.ENDC}"
-                    f" available moves between {ByteColors.OKGREEN}"
-                    f"{str(len(player.alive_pieces())).center(2)}{ByteColors.ENDC} pieces")
-            random_piece, random_move = random.choice(player_moves)
-            while True:
-                try:
-                    piece = browser.find_element(
-                        By.CLASS_NAME,
-                        f"piece.{player.color[0]}{random_piece.char_identifier}"
-                        f".square-{random_piece.board_position}")
-                    piece.click()
-                    break
-                except:
+                player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
+                if player_moves is None:
+                    page = BeautifulSoup(browser.page_source, "html.parser")
+                    selected_move = page.find(class_ = f"{opponent.color} node selected")
+                    if selected_move.text[-1] == "#":
+                        console.print("GAME OVER", style="red")
+                        console.print("CHECKMATE", style="red")
+                    else:
+                        console.print("GAME OVER", style="red")
+                        console.print("STALEMATE", style="red")
+                    return
+                random_piece, random_move = random.choice(player_moves)
+                while True:
                     try:
                         piece = browser.find_element(
-                            By.CLASS_NAME, 
-                            f"piece.square-{random_piece.board_position}"
-                            f".{player.color[0]}{random_piece.char_identifier}")
+                            By.CLASS_NAME,
+                            f"piece.{player.color[0]}{random_piece.char_identifier}"
+                            f".square-{random_piece.board_position}")
                         piece.click()
+                        break
                     except:
-                        pass
-            while True:
-                try:
-                    square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
-                    action_chains.drag_and_drop(piece, square).perform()
-                    break
-                except:
+                        try:
+                            piece = browser.find_element(
+                                By.CLASS_NAME, 
+                                f"piece.square-{random_piece.board_position}"
+                                f".{player.color[0]}{random_piece.char_identifier}")
+                            piece.click()
+                        except:
+                            pass
+                while True:
                     try:
-                        square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
+                        square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
                         action_chains.drag_and_drop(piece, square).perform()
                         break
                     except:
-                        pass
-            player.set_positions(browser.page_source, player.alive_pieces())
-            opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            player.print_last_move(browser.page_source, random_piece)
-            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            if opponent_moves is None:
-                print(f"{ByteColors.OKGREEN}GAME OVER{ByteColors.ENDC}")
-                print(f"{ByteColors.OKGREEN}YOU WIN?{ByteColors.ENDC}")
-                return
-            print(f"{opponent.username.center(25, '-')}"
-                  f" has {ByteColors.WARNING}{str(len(opponent_moves)).center(2)}{ByteColors.ENDC}"
-                  f" available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}"
-                  f"{ByteColors.ENDC} pieces")
-'''
+                        try:
+                            square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
+                            action_chains.drag_and_drop(piece, square).perform()
+                            break
+                        except:
+                            pass
+                player.set_positions(browser.page_source, player.alive_pieces())
+                opponent.set_positions(browser.page_source, opponent.alive_pieces())
+                player.print_last_move(browser.page_source, random_piece)
+                opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
+                if opponent_moves is None:
+                    console.print("GAME OVER", style="green")
+                    console.print("YOU WIN?", style="green")
+                    return
+            
+            live.update(str(len(player_moves)),
+                        str(random_move),
+                        "Potato",
+                        str(len(opponent_moves)),
+                        str(opponent_move_piece),
+                        "tomato")
+            
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
