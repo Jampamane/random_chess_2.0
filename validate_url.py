@@ -1,49 +1,49 @@
-'''
-This modlue helps me validate that urls are good urls and not bad ones
-'''
+
+from typing import Any
 import requests
-from bcolors import ByteColors
+from rich.console import Console
+
 
 class Validate():
     '''
     This is just to validate that the url is actually a good url and not a bad one.
     Bad url. Bad bad boy.
     '''
-    def __init__(self, url = "", test_url = False) -> None:
+    def __init__(self, url, test_url) -> None:
         '''
         The class initializes and validates the url.
         '''
+        self.url = url
+        self.test_url = test_url
+        self.console = Console()
         try:
-            response = requests.get(url, timeout=10)
-            if not response:
+            response = requests.get(self.url)
+            if not response: #If 400 or greater evaluates falsey
                 raise requests.exceptions.ConnectionError
-            if test_url:
-                assert test_url in url, f"Are you connecting to {test_url}?"
-            self.successful = True
+            if not self.test_url in self.url: 
+                raise ValueError(f"Are you connecting to {self.test_url}?")
         except requests.exceptions.SSLError:
-            err_msg = "Are you connecting to an actual URL?"
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
-            print(f"{'TIMEOUT MAX RETRIES'.center(len(err_msg), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            self.console.print("INVALID URL", style="red")
+            self.console.print("TIMEOUT MAX RETRIES", style="red")
+            self.console.print("Are you connecting to an actual URL?", style="yellow")
             self.successful = False
         except requests.exceptions.ConnectionError:
-            err_msg = "Response code for the url is 400 or higher."
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
-            print(f"{'FAILED TO CONNECT'.center(len(err_msg), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            self.console.print("INVALID URL", style="red")
+            self.console.print("FAILED TO CONNECT", style="red")
+            self.console.print("Response code for the url is 400 or higher.", style="yellow")
             self.successful = False
         except requests.exceptions.MissingSchema:
-            err_msg = "Are you missing https:// at the beggining of the url?"
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
-            print(f"{'MISSING SCHEMA'.center(len(err_msg), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
+            self.console.print("INVALID URL", style="red")
+            self.console.print("MISSING SCHEMA", style="red")
+            self.console.print("Are you missing https:// at the beggining of the url?", style="yellow")
             self.successful = False
-        except AssertionError as e:
-            err_msg = str(e)
-            print(f"{ByteColors.FAIL}{'INVALID URL'.center(len(err_msg), '-')}")
-            print(f"{'INVALID WEBSITE'.center(len(err_msg), '-')}{ByteColors.ENDC}")
-            print(f"{ByteColors.WARNING}{err_msg.center(len(err_msg), '-')}{ByteColors.ENDC}")
+        except ValueError as e:
+            self.console.print("INVALID URL", style="red")
+            self.console.print("INVALID WEBSITE", style="red")
+            self.console.print(str(e), style="yellow")
             self.successful = False
+        else:
+            self.successful = True
 
     def success(self) -> bool:
         '''
@@ -51,6 +51,3 @@ class Validate():
         Good url. Good good boy.
         '''
         return self.successful
-
-    def good_boy(self):
-        return "Good boy. Good good boy."

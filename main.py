@@ -1,7 +1,12 @@
 import random
+from argparse import ArgumentParser
 import time
 import selenium
 from bs4 import BeautifulSoup
+import rich
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -13,36 +18,90 @@ from player import Player
 from validate_url import Validate
 from chess_login import ChessLogin
 
+def login():
+    #Login to www.chess.com
+    browser.get("https://www.chess.com/")
+    console.print("Navigating to the login page...")
+
+    WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "login")))
+    
+    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
+    home_page_login[1].click()
+
+    console.print("Redirected to the login page...")
+    console.print("Attempting to login...")
+
+    login_email = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.ID, "username")))
+    
+    login_email.send_keys(ChessLogin.username)
+
+    login_password = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.ID, "password")))
+    
+    login_password.send_keys(ChessLogin.password)
+
+    login_button = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "login-space-top-large")))
+    
+    login_button.click()
+
+    console.print("[green]Credentials submitted![/]")
+
+    WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "home-username-link")))
+    
+    #Verify the login succeeded
+    if "www.chess.com/home" in browser.current_url:
+        print(f"{ByteColors.OKGREEN}Login successful!{ByteColors.ENDC}")
+    else:
+        print(f"{ByteColors.FAIL}LOGIN FAILED{ByteColors.ENDC}")
+        SystemExit()
+
+def create_table(name):
+    table = Table(title=name)
+
+    table.add_column("White # of moves")
+    table.add_column("White actual move")
+    table.add_column("White time left")
+    table.add_column("Black # of moves")
+    table.add_column("Black actual move")
+    table.add_column("Black time left")
+    table.add_row("p", "w", "r", "w", "g", "r")
+    page = BeautifulSoup(browser.page_source, "html.parser")
+    white_moves = page.findAll(class_="white node")
+
+    return table
 def main():
     '''
     Main function. Connects to the chess game and runs the
     main loop to play the chess game. Returns once there are
     no more moves.
     '''
-    #Connect to the current game being played
-    url = input(f"{ByteColors.HEADER}Please enter the url for the chess game: {ByteColors.ENDC}")
-    while Validate(url, "www.chess.com").success() is False:
-        url = input(f"{ByteColors.HEADER}Please enter a valid url: {ByteColors.ENDC}")
-    browser.get(url)
-    WebDriverWait(browser, 3).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "board")))
+    
+    table = create_table("Chess Game")
+    console.print(table)
+    '''
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
-        WebDriverWait(browser, 3).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "flipped")))
-        player = Player("black", browser.page_source)
-        opponent = Player("white", browser.page_source)
-        player()
-        opponent()
-    except:
+        browser.find_element(By.CLASS_NAME, "flipped")
+    except selenium.common.exceptions.NoSuchElementException:
         player = Player("white", browser.page_source)
         opponent = Player("black", browser.page_source)
-        player()
-        opponent()
+    else:
+        player = Player("black", browser.page_source)
+        opponent = Player("white", browser.page_source)
     finally:
         action_chains = ActionChains(browser)
+        
+    
+
     while True:
         if player.is_turn(browser.page_source) is True:
             if player.color == "white":
@@ -124,61 +183,42 @@ def main():
                   f" has {ByteColors.WARNING}{str(len(opponent_moves)).center(2)}{ByteColors.ENDC}"
                   f" available moves between {ByteColors.OKGREEN}{str(len(opponent.alive_pieces())).center(2)}"
                   f"{ByteColors.ENDC} pieces")
-
-def login():
-    #Login to www.chess.com
-    browser.get("https://www.chess.com/")
-    print(f"{ByteColors.WARNING}Attempting to login.{ByteColors.ENDC}")
-    WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "login")))
-    home_page_login = browser.find_elements(By.CLASS_NAME, "login")
-    home_page_login[1].click()
-    print(f"{ByteColors.WARNING}Redirected to the login page.{ByteColors.ENDC}")
-    login_email = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((
-            By.ID, "username")))
-    login_email.send_keys(ChessLogin.username)
-    login_password = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((
-            By.ID, "password")))
-    login_password.send_keys(ChessLogin.password)
-    login_button = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "login-space-top-large")))
-    login_button.click()
-    print(f"{ByteColors.WARNING}Credentials submitted.{ByteColors.ENDC}")
-    WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "home-username-link")))
-    #Verify the login succeeded
-    if "www.chess.com/home" in browser.current_url:
-        print(f"{ByteColors.OKGREEN}Login successful!{ByteColors.ENDC}")
-    else:
-        print(f"{ByteColors.FAIL}LOGIN FAILED{ByteColors.ENDC}")
-        SystemExit()
+'''
 
 if __name__ == "__main__":
-    #Establish the selenium browser
-    print(f"{ByteColors.WARNING}Establishing browser.{ByteColors.ENDC}")
-    options = ChromeOptions()
-    options.add_argument("log-level=3") #So it doesn't spam the console with messages
-    browser = Chrome(options=options)
-
-    login()
-    
+    parser = ArgumentParser()
+    parser.add_argument("-url")
+    args = parser.parse_args()
+    console = Console()
     try:
-        main(browser)
-    except KeyboardInterrupt:
-        print(f"{ByteColors.FAIL}GAME ENDED UBRUPTLY{ByteColors.ENDC}")
-    main()
-    while True:
-        try:
-            continue_ = input(f"{ByteColors.HEADER}"
-                              f"Would you like to play again?{ByteColors.ENDC} (y/n) ")
-            if continue_.lower() == "y" or continue_.lower() == "yes":
-                main()
-            elif continue_.lower() == "n" or continue_.lower() == "no":
-                SystemExit()
-        except KeyboardInterrupt:
-            print(f"{ByteColors.FAIL}GAME ENDED UBRUPTLY{ByteColors.ENDC}")
+        if not args.url:
+            raise ValueError("Chess game requires a url.")
+        if Validate(args.url, "www.chess.com").success() is False:
+            raise ReferenceError("Chess game requires a valid url.")
+    except ValueError as e:
+        console.print(e, style="red")
+        console.print("Type -url and then the url for the chess game.", style="red")
+        quit()
+    except ReferenceError as e:
+        console.print(e, style="red")
+        quit()
+
+    with console.status(
+    "Setting up...", spinner="material",
+    ):
+        options = ChromeOptions()
+        options.add_argument("--headless") #Run in headless mode
+        options.add_argument("log-level=3") #So it doesn't spam the console with messages
+        browser = Chrome(options=options) #Establish the selenium browser
+
+        #login()
+        time.sleep(0.5)
+        console.print("Accessing chess game url...")
+        browser.get(args.url) #Connect to the current game being played
+        console.print("Letting the page load...")
+        time.sleep(3)
+    
+    with console.status(
+    "[blue]Playing chess...", spinner="dots",
+    ):
+        main()
