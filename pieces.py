@@ -52,9 +52,10 @@ class Piece():
         for indx, move in move_list:
             try:
                 piece = all_piece_positions[move]
-                collisions[move] = piece
-            except:
+            except KeyError:
                 pass
+            else:
+                collisions[move] = piece
         if len(collisions) == 0:
             return None
         return collisions
@@ -64,12 +65,13 @@ class Piece():
         for indx, move in move_list:
             try:
                 collision_piece = collisions[move]
+            except KeyError:
+                final_moves.append(move)
+            else:
                 if collision_piece[0] == self.color[0]:
                     pass
                 else:
                     final_moves.append(move)
-            except:
-                final_moves.append(move)
         if len(final_moves) == 0:
             return None
         return final_moves
@@ -107,15 +109,7 @@ class Pawn(Piece):
         for indx, move in move_list:
             try:
                 collision_piece = collisions[move]
-                if indx == 1:
-                    jumping = True
-
-                elif indx in (3, 4):
-                    if collision_piece[0] == self.color[0]:
-                        pass
-                    else:
-                        final_moves.append(move)
-            except:
+            except KeyError:
                 if indx == 2:
                     if jumping is True:
                         pass
@@ -127,6 +121,14 @@ class Pawn(Piece):
                     pass
                 else:
                     final_moves.append(move)
+            else:
+                if indx == 1:
+                    jumping = True
+                elif indx in (3, 4):
+                    if collision_piece[0] == self.color[0]:
+                        pass
+                    else:
+                        final_moves.append(move)
         if len(final_moves) == 0:
             return None
         return final_moves
@@ -257,16 +259,18 @@ class Queen(Piece):
                 test_square = str(test_horizontal) + str(test_vertical)
                 try:
                     potential_moves[test_square]
+                except KeyError:
+                    break
+                else:
                     try:
                         collision_piece = collisions[test_square]
+                    except KeyError:
+                        final_moves.append(test_square)
+                    else:
                         if collision_piece[0] == self.color[0]:
                             break
                         final_moves.append(test_square)
                         break
-                    except:
-                        final_moves.append(test_square)
-                except:
-                    break
         if len(final_moves) == 0:
             return None
         return final_moves
