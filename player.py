@@ -83,7 +83,9 @@ class Player():
         positions = board.find_all("div", lambda text: "piece" in text.lower())
         pieces = [str(piece) for piece in positions]
         #Selects each div compenent that was turned into text
-        for piece in pieces: 
+        for piece in pieces:
+            current_piece = None
+            current_position = None
             #Deletes the quotation marks and
             #splits the div text component into individual values
             piece_text = piece.replace("\"", "").split()
@@ -93,9 +95,7 @@ class Player():
                 if len(text) == 2: 
                     if sort_color is True:
                         if self.color[0] == text[0]: #Test for correct color
-                            #If not correct color set both to None and break
-                            current_piece = None
-                            current_position = None
+                            #If not correct color break
                             break
                     elif sort_color is False:
                         current_piece = text

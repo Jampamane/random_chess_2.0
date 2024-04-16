@@ -63,7 +63,7 @@ def login():
         print(f"{ByteColors.OKGREEN}Login successful!{ByteColors.ENDC}")
     else:
         print(f"{ByteColors.FAIL}LOGIN FAILED{ByteColors.ENDC}")
-        SystemExit()
+        quit()
 
 def create_table(name):
     table = Table(title=name)
@@ -200,8 +200,8 @@ if __name__ == "__main__":
     "Setting up...", spinner="material",
     ):
         options = ChromeOptions()
+        options.add_argument("--log-level=3") #So it doesn't spam the console with messages
         options.add_argument("--headless") #Run in headless mode
-        options.add_argument("log-level=3") #So it doesn't spam the console with messages
         browser = Chrome(options=options) #Establish the selenium browser
 
         #login()
