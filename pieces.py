@@ -1,9 +1,28 @@
-import moves
+"""Defines all of the chess pieces and all of the movement rules."""
+
+from piece_potential_moves import WHITE_PAWN_MOVES
+from piece_potential_moves import BLACK_PAWN_MOVES
+from piece_potential_moves import KING_MOVES
+from piece_potential_moves import KNIGHT_MOVES
+from piece_potential_moves import QUEEN_MOVES
+from piece_potential_moves import BISHOP_MOVES
+from piece_potential_moves import ROOK_MOVES
 
 class Piece():
-    def __init__(self, color):
+    """
+    Defines all of the basic characteristics of a chess piece.
+    All of the chess piece classes inherit from Piece.
+    
+    Args:
+        color (str): Either "white" or "black".
+    """
+    def __init__(self, color: str) -> None:
         self.color = color
         self.board_position = "00"
+        # These 2 variables get overwritten by the
+        # classes that inherit from Piece:
+        self.char_identifier = False
+        self.possible_moves = {}
 
     def __str__(self) -> str:
         match self.char_identifier:
@@ -20,194 +39,331 @@ class Piece():
             case "q":
                 return "Queen"
 
-    def set_position(self, position):
+    def set_position(self, position: str) -> None:
+        """Set the position of the piece on the board.
+        
+        Args:
+            position (str): 
+                2 character identifier for
+                where the piece is on the board.
+                Example: '45' would be D5.
+        """
         self.board_position = position
 
-    def current_position(self):
+    def current_position(self) -> str:
+        """Fetch the current position of the piece.
+
+        Returns:
+            board_posistion (str): 
+                2 character identifier for where the piece is on the board.
+                Example: '45' would be D5.
+        """
         return self.board_position
 
-    def get_potential_moves(self):
-        if self.board_position == "00":
-            return None
-        horizontal_position = int(self.board_position[0])
-        vertical_position = int(self.board_position[1])
-        move_list = []
-        for indx, move in enumerate(self.possible_moves, 1):
-            move_dict = self.possible_moves[move]
-            potential_horizontal = horizontal_position + move_dict["horizontal"]
-            potential_vertical = vertical_position + move_dict["forward"]
-            potential_move = str(potential_horizontal) + str(potential_vertical)
-            move_list.append((indx, potential_move))
-        return move_list
+    def _get_potential_moves(self) -> dict:
+        """
+        Create a dictionary of all the possible moves that a 
+        piece could move to, regardless if there is another piece 
+        in the way or if the move is off of the board.
 
-    def on_the_board(self, move_list):
-        on_the_board = []
-        for indx, move in move_list:
+        Returns:
+            moves (dict): 
+                Dictionary object for all of the possible moves.
+                Keys are move numbers, values are board positions.
+                Example: {1: 12, 2: 22}
+                Returns empty dictionary if piece has been captured
+                or if no available moves.
+        """
+        if self.board_position == "00":
+            return {}
+        horizontal_pos = int(self.board_position[0])
+        vertical_pos = int(self.board_position[1])
+        moves_dict = {}
+        for indx, move in self.possible_moves.items():
+            potential_horizontal = horizontal_pos + move["horizontal"]
+            potential_vertical = vertical_pos + move["forward"]
+            potential_move = str(potential_horizontal) + str(potential_vertical)
+            moves_dict[indx] = potential_move
+        return moves_dict
+
+    def _on_the_board(self) -> dict:
+        """
+        Create a dictionary of all of the moves that don't go off of the board.
+        Calls the internal function _get_potential_moves() and then
+        filters out 'off the board' moves.
+
+        Returns:
+            moves (dict): 
+                Dictionary object for all of the possible moves.
+                Keys are move numbers, values are board positions.
+                Example: {1: 12, 2: 22}
+                Returns empty dictionary if piece has been captured
+                or if no available moves.
+        """
+        potential_moves = self._get_potential_moves()
+        if len(potential_moves) == 0:
+            return {}
+        moves_on_the_board = {}
+        for indx, move in potential_moves.items():
             if len(move) == 2:
                 if int(move[0]) >= 1 and int(move[0]) <= 8:
                     if int(move[1]) >= 1 and int(move[1]) <= 8:
-                        on_the_board.append((indx, move))
-        return on_the_board
+                        moves_on_the_board[indx] = move
+        return moves_on_the_board
 
-    def detect_collisions(self, move_list, all_piece_positions):
+    def _detect_collisions(self, move_dict: dict, all_piece_positions: dict) -> dict:
+        """
+        Create a dictionary of all of the potential collisions 
+        given the potential moves of the piece.
+
+        Args:
+            move_dict (dict): 
+                Dictionary of all of the potential moves of the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+
+            all_piece_positions (dict):
+                Dictionary of every piece position on the board.
+                Keys are board positions, and values are 2 char identifiers.
+                Example: {32: wr, 18: bk}
+
+        Returns:
+            collisions (dict): 
+                Dictionary of all the collisions.
+                Keys are board positions, and values are 2 char identifiers.
+                Example: {32: wr, 18: bk}
+                Returns empty dictionary if no potential moves.
+        """
+        if len(move_dict) == 0:
+            return {}
         collisions = {}
-        for indx, move in move_list:
+        for move in move_dict.values():
             try:
                 piece = all_piece_positions[move]
             except KeyError:
                 pass
             else:
                 collisions[move] = piece
-        if len(collisions) == 0:
-            return None
         return collisions
 
-    def final_moves(self, move_list, collisions):
-        final_moves = []
-        for indx, move in move_list:
+    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
+        """
+        Final piece of logic to determine all of the valid moves for the piece.
+        Uses collisions to figure out valid moves.
+        This method is overwritten in a couple 
+        of classes that inherit from the Piece class.
+        This method is used by the Knight class and the King class.
+
+        Args:
+            move_dict (dict):
+                Dictionary of all of the potential moves of the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+
+            collisions (dict): 
+                Dictionary of all the collisions.
+                Keys are board positions, and values are 2 char identifiers.
+                Example: {32: wr, 18: bk}
+
+        Returns:
+            final_moves (dict):
+                Dictionary of all the final valid moves for the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+                Returns empty dictionary if no potential moves.
+        """
+        if len(move_dict) == 0:
+            return {}
+        final_moves = {}
+        for indx, move in move_dict.items():
             try:
                 collision_piece = collisions[move]
             except KeyError:
-                final_moves.append(move)
+                final_moves[indx] = move
             else:
-                if collision_piece[0] == self.color[0]:
-                    pass
-                else:
-                    final_moves.append(move)
-        if len(final_moves) == 0:
-            return None
+                if collision_piece[0] != self.color[0]:
+                    final_moves[indx] = move
         return final_moves
 
-    def return_final_moves(self, all_the_pieces):
-        potential_moves = self.get_potential_moves()
-        on_the_board = self.on_the_board(potential_moves)
-        collisions = self.detect_collisions(on_the_board, all_the_pieces)
-        final_moves_list = self.final_moves(on_the_board, collisions)
-        if final_moves_list is None:
-            return None
-        final_moves_tuple = []
-        for move in final_moves_list:
-            final_moves_tuple.append((self, move))
-        return final_moves_tuple
+    def return_final_moves(self, all_piece_positions):
+        """Determine all of the valid moves for a piece.
+
+        Args:
+            all_piece_positions (dict):
+                Dictionary of every piece position on the board.
+                Keys are board positions, and values are 2 char identifiers.
+                Example: {32: wr, 18: bk}
+
+        Returns:
+            final_moves (dict):
+                Dictionary of all the final valid moves for the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+                Returns empty dictionary if no final moves.
+        """
+        moves_on_the_board = self._on_the_board()
+        collisions = self._detect_collisions(moves_on_the_board, all_piece_positions)
+        final_moves = self._final_moves(moves_on_the_board, collisions)
+        return final_moves
 
 class Pawn(Piece):
-    def __init__(self, color):
+    """
+    Pawn class, inherits from Piece. 
+    Overwrites the _final_moves method.
+
+    Args:
+        Piece (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
+    def __init__(self, color: str):
         super().__init__(color)
         self.char_identifier = "p"
         if self.color == "white":
-            self.possible_moves = moves.WHITE_PAWN_MOVES
+            self.possible_moves = WHITE_PAWN_MOVES
         if self.color == "black":
-            self.possible_moves = moves.BLACK_PAWN_MOVES
+            self.possible_moves = BLACK_PAWN_MOVES
 
-    def final_moves(self, move_list, collisions):
-        final_moves = []
-        jumping = False
-        for indx, move in move_list:
-            try:
-                collision_piece = collisions[move]
-            except KeyError:
-                if indx == 2:
-                    if jumping is True:
-                        pass
-                    elif self.color == "black" and int(self.board_position[1]) == 7:
-                        final_moves.append(move)
-                    elif self.color == "white" and int(self.board_position[1]) == 2:
-                        final_moves.append(move)
-                elif indx in (3, 4):
+    def _final_moves(self, move_dict: dict, collisions: dict):
+        final_moves = {}
+        piece_in_the_way_for_two_square_move = False
+        for indx, move in move_dict.items():
+            if indx == 1:
+                try:
+                    collision_piece = collisions[move]
+                except KeyError:
+                    final_moves[indx] = move
+                else:
+                    piece_in_the_way_for_two_square_move = True
+
+            elif indx == 2:
+                try:
+                    collision_piece = collisions[move]
+                except KeyError:
+                    if (self.color == "black"
+                    and int(self.board_position[1]) == 7
+                    and piece_in_the_way_for_two_square_move is False
+                    ):
+                        final_moves[indx] = move
+                    elif (self.color == "white"
+                    and int(self.board_position[1]) == 2
+                    and piece_in_the_way_for_two_square_move is False
+                    ):
+                        final_moves[indx] = move
+
+            elif indx in (3, 4):
+                try:
+                    collision_piece = collisions[move]
+                except KeyError:
                     pass
                 else:
-                    final_moves.append(move)
-            else:
-                if indx == 1:
-                    jumping = True
-                elif indx in (3, 4):
-                    if collision_piece[0] == self.color[0]:
-                        pass
-                    else:
-                        final_moves.append(move)
-        if len(final_moves) == 0:
-            return None
+                    if collision_piece[0] != self.color[0]:
+                        final_moves[indx] = move
         return final_moves
 
 class Knight(Piece):
-    def __init__(self, color):
+    """Knight class, inherits from Piece. 
+
+    Args:
+        Piece (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
+    def __init__(self, color: str):
         super().__init__(color)
         self.char_identifier = "n"
-        self.possible_moves = moves.KNIGHT_MOVES
+        self.possible_moves = KNIGHT_MOVES
 
 class King(Piece):
-    def __init__(self, color):
+    """King class, inherits from Piece. 
+
+    Args:
+        Piece (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
+    def __init__(self, color: str):
         super().__init__(color)
         self.char_identifier = "k"
-        self.possible_moves = moves.KING_MOVES
+        self.possible_moves = KING_MOVES
 
 class Queen(Piece):
-    def __init__(self, color):
+    """
+    Queen class, inherits from Piece. 
+    Overwrites the _final_moves method.
+    Declares 'lines' of moves, 
+    used in the new _final_moves method.
+
+    Args:
+        Piece (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
+    def __init__(self, color: str):
         super().__init__(color)
         self.char_identifier = "q"
-        self.possible_moves = moves.QUEEN_MOVES
-        self.down_line = {indx: value for indx, value in
-                          self.possible_moves.items() if indx <= 8}
-        self.up_line = {indx: value for indx, value in
-                        self.possible_moves.items() if indx > 8 and indx <= 16}
-        self.right_line = {indx: value for indx, value in
-                           self.possible_moves.items() if indx > 16 and indx <= 24}
-        self.left_line = {indx: value for indx, value in
-                          self.possible_moves.items() if indx > 24 and indx <= 32}
-        self.down_left_line = {indx: value for indx, value in
-                               self.possible_moves.items() if indx > 32 and indx <= 40}
-        self.up_right_line = {indx: value for indx, value in
-                              self.possible_moves.items() if indx > 40 and indx <= 48}
-        self.down_right_line = {indx: value for indx, value in
-                                self.possible_moves.items() if indx > 48 and indx <= 56}
-        self.up_left_line = {indx: value for indx, value in
-                             self.possible_moves.items() if indx > 56 and indx <= 64}
-        self.lines = [self.down_line, self.up_line, self.right_line, self.left_line,
-                      self.down_left_line, self.up_right_line, 
-                      self.down_right_line, self.up_left_line]
-    
-    def final_moves(self, move_list, collisions):
-        final_moves = []
-        potential_moves = {move: indx for indx, move in move_list}
-        horizontal_position = int(self.board_position[0])
-        vertical_position = int(self.board_position[1])
-        for line in self.lines:
-            for move in line:
-                test_horizontal = int(line[move]["horizontal"]) + horizontal_position
-                test_vertical = int(line[move]["forward"]) + vertical_position
-                test_square = str(test_horizontal) + str(test_vertical)
-                try:
-                    potential_moves[test_square]
-                except KeyError:
-                    break
-                else:
-                    try:
-                        collision_piece = collisions[test_square]
-                    except KeyError:
-                        final_moves.append(test_square)
-                    else:
-                        if collision_piece[0] == self.color[0]:
-                            break
-                        final_moves.append(test_square)
-                        break
-        if len(final_moves) == 0:
-            return None
+        self.possible_moves = QUEEN_MOVES
+
+    def _final_moves(self, move_dict: dict, collisions: dict):
+        """
+        Final piece of logic to determine all of the valid moves for the piece.
+        Uses collisions to figure out valid moves.
+        The Queen instance of _final_moves introduces move 'lines'.
+        After 8 move checks it resets until it finds another collision.
+        Once a collision is found it moves onto the next line.
+
+        Args:
+            move_dict (dict):
+                Dictionary of all of the potential moves of the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+
+            collisions (dict): 
+                Dictionary of all the collisions.
+                Keys are board positions, and values are 2 char identifiers.
+                Example: {32: wr, 18: bk}
+
+        Returns:
+            final_moves (dict):
+                Dictionary of all the final valid moves for the piece.
+                Keys are move numbers, and values are board positions.
+                Example: {1: 12, 2: 22}
+                Returns empty dictionary if no potential moves.
+        """
+        final_moves = {}
+        continue_the_line = True
+        for indx, move in move_dict.items():
+            if indx % 8 == 1:
+                continue_the_line = True
+            try:
+                collision_piece = collisions[move]
+            except KeyError:
+                if continue_the_line is True:
+                    final_moves[indx] = move
+            else:
+                if collision_piece[0] != self.color[0]:
+                        final_moves[indx] = move
+                continue_the_line = False
         return final_moves
 
 class Bishop(Queen):
+    """
+    Bishop class, inherits from Queen, which inherits from Piece. 
+
+    Args:
+        Queen (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "b"
-        self.possible_moves = {indx: move for indx, move in 
-                               self.possible_moves.items() if indx > 32}
-        self.lines = [self.down_left_line, self.up_right_line, 
-                      self.down_right_line, self.up_left_line]
+        self.possible_moves = BISHOP_MOVES
 
 class Rook(Queen):
+    """
+    Rook class, inherits from Queen, which inherits from Piece. 
+
+    Args:
+        Queen (class): Class Pawn inherits from.
+        color (str): Either "white" or "black".
+    """
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "r"
-        self.possible_moves = {indx: move for indx, move in 
-                               self.possible_moves.items() if indx <= 32}
-        self.lines = [self.down_line, self.up_line, 
-                      self.right_line, self.left_line]
+        self.possible_moves = ROOK_MOVES
