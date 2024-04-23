@@ -185,7 +185,7 @@ class Piece():
                     final_moves[indx] = move
         return final_moves
 
-    def return_final_moves(self, all_piece_positions):
+    def return_final_moves(self, all_piece_positions) -> dict:
         """Determine all of the valid moves for a piece.
 
         Args:
@@ -215,7 +215,7 @@ class Pawn(Piece):
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color: str):
+    def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "p"
         if self.color == "white":
@@ -223,7 +223,7 @@ class Pawn(Piece):
         if self.color == "black":
             self.possible_moves = BLACK_PAWN_MOVES
 
-    def _final_moves(self, move_dict: dict, collisions: dict):
+    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
         final_moves = {}
         piece_in_the_way_for_two_square_move = False
         for indx, move in move_dict.items():
@@ -267,7 +267,7 @@ class Knight(Piece):
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color: str):
+    def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "n"
         self.possible_moves = KNIGHT_MOVES
@@ -279,7 +279,7 @@ class King(Piece):
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color: str):
+    def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "k"
         self.possible_moves = KING_MOVES
@@ -295,12 +295,12 @@ class Queen(Piece):
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color: str):
+    def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "q"
         self.possible_moves = QUEEN_MOVES
 
-    def _final_moves(self, move_dict: dict, collisions: dict):
+    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
         """
         Final piece of logic to determine all of the valid moves for the piece.
         Uses collisions to figure out valid moves.
@@ -350,7 +350,7 @@ class Bishop(Queen):
         Queen (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color):
+    def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "b"
         self.possible_moves = BISHOP_MOVES
@@ -363,7 +363,7 @@ class Rook(Queen):
         Queen (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
-    def __init__(self, color):
+    def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "r"
         self.possible_moves = ROOK_MOVES
