@@ -14,32 +14,43 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from bcolors import ByteColors
-from player import Player
+from player import White
+from player import Black
 from validate_url import Validate
 from chess_login import ChessLogin
 
+def create_table(page_source):
+    # table = Table()
+    soup = BeautifulSoup(page_source, "html.parser")
+    move_list = soup.find("wc-move-list")
+    print(move_list)
 
 
-def main():
-    '''
+def main(chrome_browser):
+    """
     Main function. Connects to the chess game and runs the
     main loop to play the chess game. Returns once there are
     no more moves.
-    '''
 
+    Args:
+        chrome_browser: 
+        Selenium Chrome Browser. Established in 'if name == main'.
+    """
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
-        browser.find_element(By.CLASS_NAME, "flipped")
+        chrome_browser.find_element(By.CLASS_NAME, "flipped")
     except selenium.common.exceptions.NoSuchElementException:
-        player = Player("white", browser.page_source)
-        opponent = Player("black", browser.page_source)
+        player = White()
+        opponent = Black()
     else:
-        player = Player("black", browser.page_source)
-        opponent = Player("white", browser.page_source)
+        player = Black()
+        opponent = White()
     finally:
-        action_chains = ActionChains(browser)
-        
+        action_chains = ActionChains(chrome_browser)
+
+    create_table(chrome_browser.page_source)
+
+    '''
     while True:
         if player.is_turn(browser.page_source) is True:
             player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
@@ -99,7 +110,7 @@ def main():
                 console.print("GAME OVER", style="green")
                 console.print("YOU WIN?", style="green")
                 return
-            
+            '''
 
 
 
@@ -144,4 +155,4 @@ if __name__ == "__main__":
     with console.status(
     "[blue]Playing chess...", spinner="dots",
     ):
-        main()
+        main(browser)

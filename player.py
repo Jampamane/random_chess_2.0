@@ -1,3 +1,5 @@
+"""Defines the player and all of it's characteristics."""
+
 from bs4 import BeautifulSoup
 from pieces import Pawn
 from pieces import Knight
@@ -5,18 +7,10 @@ from pieces import Rook
 from pieces import Bishop
 from pieces import King
 from pieces import Queen
-from bcolors import ByteColors
 
 class Player():
-    def __init__(self, color, page_source):
+    def __init__(self, color):
         self.color = color
-        if self.color == "white":
-            self.text_color = ByteColors.OKCYAN
-        elif self.color == "black":
-            self.text_color = ByteColors.OKBLUE
-        self.username = (f"{self.text_color}"
-                         f"{self.set_username(page_source).upper()}{ByteColors.ENDC}")
-        self.time_left = self.set_time(page_source)
         self.pawn1 = Pawn(color)
         self.pawn2 = Pawn(color)
         self.pawn3 = Pawn(color)
@@ -37,16 +31,27 @@ class Player():
                        self.pawn5, self.pawn6, self.pawn7, self.pawn8,
                        self.rook1, self.rook2, self.kight1, self.kight2,
                        self.bishop1, self.bishop2, self.king, self.queen]
-        self.set_positions(page_source, self.pieces)
 
     def __call__(self) -> None:
-        print(f"{self.username} is "
-              f"{self.text_color}{self.color.upper()}{ByteColors.ENDC}"
-              f" and they have {ByteColors.FAIL}{self.time_left}{ByteColors.ENDC}"
-              f" left on the clock")
-        print(f"{self.username} has {ByteColors.WARNING}{len(self.alive_pieces())}{ByteColors.ENDC}"
-              f" pieces left on the board \n")
+        pass
 
+    def get_piece_positions(self) -> dict:
+        piece_dict = {}
+        for piece in self.pieces:
+            piece_dict[piece.board_position] = self.color[0] + piece.char_identifier
+        return piece_dict
+    
+    def check_for_move(self, page_source):
+        piece_positions = self.get_piece_positions()
+        page_html_positions = self._create_dict(page_source)
+        for position, piece in piece_positions.items():
+            try:
+                html_piece = page_html_positions[position]
+                if html_piece != piece:
+                    return piece
+            except KeyError:
+                return piece
+        
     def has_moved(self, page_source):
         page = BeautifulSoup(page_source, "html.parser")
         moves = page.find_all(class_ = f"{self.color} node")
@@ -57,56 +62,48 @@ class Player():
             return False
         return True
 
-    def print_last_move(self, page_source, piece):
-        page = BeautifulSoup(page_source, "html.parser")
-        moves = page.find_all(class_ = f"{self.color} node")
-        selected_move = page.find(class_ = f"{self.color} node selected")
-        if selected_move:
-            moves.append(selected_move)
-        if len(moves) == 0:
-            print(f"{self.username.center(25, '-')} hasn't moved yet\n")
-            return False
-        move = moves[-1]
-        self.set_time(page_source)
-        print(f"{self.username.center(25, '-')} moved their "
-              f"{self.text_color}{str(piece).upper()}{ByteColors.ENDC} to "
-              f"{self.text_color}{str(move.text).upper()}{ByteColors.ENDC}\n")
-        return move
+    def _create_dict(self, page_source, sort_color = True) -> dict:
+        """
+        Reads the browser's HTML and creates a 
+        dictionary with piece and location information.
 
-    def create_dict(self, page_source, sort_color = True) -> dict:
-        '''
-        Reads the browser's HTML and creates a dictionary with piece and location information.
-        '''
+        Args:
+            page_source (_type_): _description_
+            sort_color (bool, optional): _description_. Defaults to True.
+
+        Returns:
+            dict: _description_
+        """
         piece_dict = {}
         page = BeautifulSoup(page_source, "html.parser")
         board = page.find("wc-chess-board")
         positions = board.find_all("div", lambda text: "piece" in text.lower())
         pieces = [str(piece) for piece in positions]
-        #Selects each div compenent that was turned into text
+        # Selects each div compenent that was turned into text
         for piece in pieces:
-            current_piece = None
-            current_position = None
-            #Deletes the quotation marks and
-            #splits the div text component into individual values
+            current_piece = ""
+            current_position = ""
+            # Deletes the quotation marks and
+            # splits the div text component into individual values
             piece_text = piece.replace("\"", "").split()
-            #Iterates over each individual value
+            # Iterates over each individual value
             for text in piece_text: #div br piece-88
-                #Test to see if the value is a 2 character piece identifier
+                # Test to see if the value is a 2 character piece identifier
                 if len(text) == 2: 
                     if sort_color is True:
-                        if self.color[0] == text[0]: #Test for correct color
-                            #If not correct color break
+                        if self.color[0] == text[0]: # Test for correct color
+                            # If not correct color break
                             break
                     elif sort_color is False:
                         current_piece = text
                 try:
-                    int(text[-2:]) #Test for 2 chars cast to int
+                    int(text[-2:]) # Test for 2 chars cast to int
                 except ValueError:
                     pass
                 else:
                     current_position = text[-2:]
-            #Update dictionary if values aren't None
-            if current_position is not None and current_piece is not None: 
+            # Update dictionary if values aren't empty
+            if current_position and current_piece:
                 piece_dict[current_position] = current_piece
         return piece_dict
 
@@ -115,7 +112,7 @@ class Player():
         Calls the create_dict function to create a dictionary with piece and location information.
         Uses that information to set the initial position of each piece.
         '''
-        dict_ = self.create_dict(page_source).items()
+        dict_ = self._create_dict(page_source).items()
         piece_list_copy = list(piece_list)
         for position, piece in dict_:
             for player_piece in piece_list_copy:
@@ -123,13 +120,14 @@ class Player():
                     player_piece.set_position(position)
                     piece_list_copy.remove(player_piece)
                     break
-        if len(piece_list_copy) != 0: #If there is still a piece left in piece_list, 
+        if len(piece_list_copy) != 0: #If there is still a piece left in piece_list,
             for piece in piece_list_copy: #it wasn't found in the HTML and it must be dead
                 piece.board_position = "00"
 
     def set_attribute(self, page_source, class_name) -> str:
         '''
-        A bit of repeat logic in figuring out which attribute to set when there are exactly 2 attributes.
+        A bit of repeat logic in figuring out 
+        which attribute to set when there are exactly 2 attributes.
         For example, 2 usernames, 2 clocks.
         '''
         page = BeautifulSoup(page_source, "html.parser")
@@ -162,30 +160,8 @@ class Player():
 
     def is_turn(self, page_source) -> bool:
         page = BeautifulSoup(page_source, "html.parser")
-        if page.find(class_=f"{self.color} node selected") is None:
+        if page.find(class_=f"clock-{self.color} clock-player-turn") is None:
             return True
-        return False
-
-    def check_for_move(self, page_source) -> bool:
-        '''
-        Function that is used exclusively to figure out where the opponent has moved
-        '''
-        piece_dict = self.create_dict(page_source)
-        piece_list = self.alive_pieces()
-        for piece in piece_list:
-            try:
-                piece_dict[piece.board_position]
-            except KeyError:
-                if str(piece) == "Pawn":
-                    if (self.color == "white" and
-                        int(piece.board_position[1]) == 7) or (
-                            self.color == "black" and
-                            int(piece.board_position[1]) == 2):
-                        self.pieces.remove(piece)
-                        piece = Queen(self.color)
-                        self.pieces.append(piece)
-                        self.set_positions(page_source, self.pieces)
-                return str(piece)
         return False
 
     def retrieve_final_moves(self, page_source, all_pieces = None, piece_list = None):
@@ -238,3 +214,43 @@ class Player():
         if len(non_check_moves) == 0:
             return None
         return non_check_moves
+
+class White(Player):
+    def __init__(self):
+        super().__init__(color="white")
+        self.pawn1.board_position = "12"
+        self.pawn2.board_position = "22"
+        self.pawn3.board_position = "32"
+        self.pawn4.board_position = "42"
+        self.pawn5.board_position = "52"
+        self.pawn6.board_position = "62"
+        self.pawn7.board_position = "72"
+        self.pawn8.board_position = "82"
+        self.rook1.board_position = "11"
+        self.rook2.board_position = "81"
+        self.kight1.board_position = "21"
+        self.kight2.board_position = "71"
+        self.bishop1.board_position = "31"
+        self.bishop2.board_position = "61"
+        self.king.board_position = "51"
+        self.queen.board_position = "41"
+
+class Black(Player):
+    def __init__(self):
+        super().__init__(color="black")
+        self.pawn1.board_position = "17"
+        self.pawn2.board_position = "27"
+        self.pawn3.board_position = "37"
+        self.pawn4.board_position = "47"
+        self.pawn5.board_position = "57"
+        self.pawn6.board_position = "67"
+        self.pawn7.board_position = "77"
+        self.pawn8.board_position = "87"
+        self.rook1.board_position = "88"
+        self.rook2.board_position = "18"
+        self.kight1.board_position = "28"
+        self.kight2.board_position = "78"
+        self.bishop1.board_position = "38"
+        self.bishop2.board_position = "68"
+        self.king.board_position = "58"
+        self.queen.board_position = "48"
