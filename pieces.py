@@ -1,3 +1,5 @@
+import moves
+
 class Piece():
     def __init__(self, color):
         self.color = color
@@ -93,15 +95,9 @@ class Pawn(Piece):
         super().__init__(color)
         self.char_identifier = "p"
         if self.color == "white":
-            self.possible_moves = {1:{"forward": 1, "horizontal": 0},
-                                   2:{"forward": 2, "horizontal": 0},
-                                   3:{"forward": 1, "horizontal": 1},
-                                   4:{"forward": 1, "horizontal":-1}}
+            self.possible_moves = moves.WHITE_PAWN_MOVES
         if self.color == "black":
-            self.possible_moves = {1:{"forward":-1, "horizontal": 0},
-                                   2:{"forward":-2, "horizontal": 0},
-                                   3:{"forward":-1, "horizontal": 1},
-                                   4:{"forward":-1, "horizontal":-1}}
+            self.possible_moves = moves.BLACK_PAWN_MOVES
 
     def final_moves(self, move_list, collisions):
         final_moves = []
@@ -137,96 +133,19 @@ class Knight(Piece):
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "n"
-        self.possible_moves =  {1:{"forward": 2, "horizontal": 1},
-                                2:{"forward": 2, "horizontal":-1},
-                                3:{"forward":-2, "horizontal": 1},
-                                4:{"forward":-2, "horizontal":-1},
-                                5:{"forward": 1, "horizontal": 2},
-                                6:{"forward": 1, "horizontal":-2},
-                                7:{"forward":-1, "horizontal": 2},
-                                8:{"forward":-1, "horizontal":-2}}
+        self.possible_moves = moves.KNIGHT_MOVES
 
 class King(Piece):
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "k"
-        self.possible_moves =  {1:{"forward": 1, "horizontal": 0},
-                                2:{"forward":-1, "horizontal": 0},
-                                3:{"forward": 0, "horizontal": 1},
-                                4:{"forward": 0, "horizontal":-1},
-                                5:{"forward": 1, "horizontal": 1},
-                                6:{"forward": 1, "horizontal":-1},
-                                7:{"forward":-1, "horizontal": 1},
-                                8:{"forward":-1, "horizontal":-1}}
+        self.possible_moves = moves.KING_MOVES
 
 class Queen(Piece):
     def __init__(self, color):
         super().__init__(color)
         self.char_identifier = "q"
-        self.possible_moves =  {1:{"forward":-1, "horizontal": 0},
-                                2:{"forward":-2, "horizontal": 0},
-                                3:{"forward":-3, "horizontal": 0},
-                                4:{"forward":-4, "horizontal": 0},
-                                5:{"forward":-5, "horizontal": 0},
-                                6:{"forward":-6, "horizontal": 0},
-                                7:{"forward":-7, "horizontal": 0},
-                                8:{"forward":-8, "horizontal": 0},
-                                9:{"forward": 1, "horizontal": 0},
-                                10:{"forward":2, "horizontal": 0},
-                                11:{"forward":3, "horizontal": 0},
-                                12:{"forward":4, "horizontal": 0},
-                                13:{"forward":5, "horizontal": 0},
-                                14:{"forward":6, "horizontal": 0},
-                                15:{"forward":7, "horizontal": 0},
-                                16:{"forward":8, "horizontal": 0},
-                                17:{"forward": 0,"horizontal": 1},
-                                18:{"forward": 0,"horizontal": 2},
-                                19:{"forward": 0,"horizontal": 3},
-                                20:{"forward": 0,"horizontal": 4},
-                                21:{"forward": 0,"horizontal": 5},
-                                22:{"forward": 0,"horizontal": 6},
-                                23:{"forward": 0,"horizontal": 7},
-                                24:{"forward": 0,"horizontal": 8},
-                                25:{"forward":0, "horizontal":-1},
-                                26:{"forward":0, "horizontal":-2},
-                                27:{"forward":0, "horizontal":-3},
-                                28:{"forward":0, "horizontal":-4},
-                                29:{"forward":0, "horizontal":-5},
-                                30:{"forward":0, "horizontal":-6},
-                                31:{"forward":0, "horizontal":-7},
-                                32:{"forward":0, "horizontal":-8},
-                                33:{"forward":-1,"horizontal":-1},
-                                34:{"forward":-2,"horizontal":-2},
-                                35:{"forward":-3,"horizontal":-3},
-                                36:{"forward":-4,"horizontal":-4},
-                                37:{"forward":-5,"horizontal":-5},
-                                38:{"forward":-6,"horizontal":-6},
-                                39:{"forward":-7,"horizontal":-7},
-                                40:{"forward":-8,"horizontal":-8},
-                                41:{"forward":1, "horizontal": 1},
-                                42:{"forward":2, "horizontal": 2},
-                                43:{"forward":3, "horizontal": 3},
-                                44:{"forward":4, "horizontal": 4},
-                                45:{"forward":5, "horizontal": 5},
-                                46:{"forward":6, "horizontal": 6},
-                                47:{"forward":7, "horizontal": 7},
-                                48:{"forward":8, "horizontal": 8},
-                                49:{"forward":-1,"horizontal": 1},
-                                50:{"forward":-2,"horizontal": 2},
-                                51:{"forward":-3,"horizontal": 3},
-                                52:{"forward":-4,"horizontal": 4},
-                                53:{"forward":-5,"horizontal": 5},
-                                54:{"forward":-6,"horizontal": 6},
-                                55:{"forward":-7,"horizontal": 7},
-                                56:{"forward":-8,"horizontal": 8},
-                                57:{"forward":1, "horizontal":-1},
-                                58:{"forward":2, "horizontal":-2},
-                                59:{"forward":3, "horizontal":-3},
-                                60:{"forward":4, "horizontal":-4},
-                                61:{"forward":5, "horizontal":-5},
-                                62:{"forward":6, "horizontal":-6},
-                                63:{"forward":7, "horizontal":-7},
-                                64:{"forward":8, "horizontal":-8}}
+        self.possible_moves = moves.QUEEN_MOVES
         self.down_line = {indx: value for indx, value in
                           self.possible_moves.items() if indx <= 8}
         self.up_line = {indx: value for indx, value in
