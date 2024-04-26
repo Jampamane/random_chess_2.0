@@ -62,7 +62,7 @@ class Piece():
 
     def _get_potential_moves(self) -> dict:
         """
-        Create a dictionary of all the possible moves that a 
+        Create a dictionary of all the possible squares on the board that a 
         piece could move to, regardless if there is another piece 
         in the way or if the move is off of the board.
 
