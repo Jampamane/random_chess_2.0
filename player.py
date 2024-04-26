@@ -43,14 +43,14 @@ class Player():
     
     def check_for_move(self, page_source):
         piece_positions = self.get_piece_positions()
-        page_html_positions = self._create_dict(page_source)
+        page_html_positions = page_source#self._create_dict(page_source)
         for position, piece in piece_positions.items():
             try:
                 html_piece = page_html_positions[position]
-                if html_piece != piece:
-                    return piece
+                if html_piece == piece:
+                    piece_positions.pop(position)
             except KeyError:
-                return piece
+                pass
         
     def has_moved(self, page_source):
         page = BeautifulSoup(page_source, "html.parser")
@@ -254,3 +254,5 @@ class Black(Player):
         self.bishop2.board_position = "68"
         self.king.board_position = "58"
         self.queen.board_position = "48"
+
+import IPython; IPython.embed(); quit()

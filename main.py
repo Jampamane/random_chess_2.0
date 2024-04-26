@@ -19,26 +19,16 @@ from player import Black
 from validate_url import Validate
 from chess_login import ChessLogin
 
-def create_table(page_source):
-    # table = Table()
-    soup = BeautifulSoup(page_source, "html.parser")
-    move_list = soup.find("wc-move-list")
-    print(move_list)
 
-
-def main(chrome_browser):
+def main():
     """
     Main function. Connects to the chess game and runs the
     main loop to play the chess game. Returns once there are
     no more moves.
-
-    Args:
-        chrome_browser: 
-        Selenium Chrome Browser. Established in 'if name == main'.
     """
     #Creates 2 player objects: white and black
     try: #Determines if the player is white or black based on if the board is flipped
-        chrome_browser.find_element(By.CLASS_NAME, "flipped")
+        browser.find_element(By.CLASS_NAME, "flipped")
     except selenium.common.exceptions.NoSuchElementException:
         player = White()
         opponent = Black()
@@ -46,10 +36,43 @@ def main(chrome_browser):
         player = Black()
         opponent = White()
     finally:
-        action_chains = ActionChains(chrome_browser)
+        action_chains = ActionChains(browser)
 
-    create_table(chrome_browser.page_source)
+    if player.color == "black":
+        opponent.check_for_move(browser.page_source)
+    # XX if black, check for move
+    # XX calculate total moves
+    # XX pick random move
+    # XX move the piece
+    # XX wait for enemy to move
+    
+    #This is the main function for v1 of random chess bot.
+    """
+    def main():
+    #Calls the color class to create a player object and an enemy object of the appropriate color
+    PlayerCol = color()
+    a = chess.Player("Player", PlayerCol)
+    if PlayerCol == "black":
+        b = chess.Player("Opponent", "white")
+        b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
+    else:
+        b = chess.Player("Opponent", "black")
+    findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
+    a.updatePieceList()
+    while True:
+        if keyboard.is_pressed("p"):
+            quit()
+        if keyboard.is_pressed("l"):
+            b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
+            findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
+            a.updatePieceList()
+        if a.turn() == True:
+            b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
+            findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
+            a.updatePieceList()
+    """
 
+    # This is the previous main function that became super long and complicated
     '''
     while True:
         if player.is_turn(browser.page_source) is True:
@@ -155,4 +178,4 @@ if __name__ == "__main__":
     with console.status(
     "[blue]Playing chess...", spinner="dots",
     ):
-        main(browser)
+        main()
