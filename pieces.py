@@ -1,12 +1,7 @@
 """Defines all of the chess pieces and all of the movement rules."""
 
-from piece_potential_moves import WHITE_PAWN_MOVES
-from piece_potential_moves import BLACK_PAWN_MOVES
-from piece_potential_moves import KING_MOVES
-from piece_potential_moves import KNIGHT_MOVES
-from piece_potential_moves import QUEEN_MOVES
-from piece_potential_moves import BISHOP_MOVES
-from piece_potential_moves import ROOK_MOVES
+from piece_potential_moves import Moves
+
 
 class Piece():
     """
@@ -21,7 +16,7 @@ class Piece():
         self.board_position = "00"
         # These 2 variables get overwritten by the
         # classes that inherit from Piece:
-        self.char_identifier = False
+        self.char_identifier = ""
         self.possible_moves = {}
 
     def __str__(self) -> str:
@@ -70,7 +65,7 @@ class Piece():
             moves (dict): 
                 Dictionary object for all of the possible moves.
                 Keys are move numbers, values are board positions.
-                Example: {1: 12, 2: 22}
+                Example: {1: '12', 2: '22'}
                 Returns empty dictionary if piece has been captured
                 or if no available moves.
         """
@@ -219,9 +214,9 @@ class Pawn(Piece):
         super().__init__(color)
         self.char_identifier = "p"
         if self.color == "white":
-            self.possible_moves = WHITE_PAWN_MOVES
+            self.possible_moves = Moves.WHITE_PAWN_MOVES.value
         if self.color == "black":
-            self.possible_moves = BLACK_PAWN_MOVES
+            self.possible_moves = Moves.BLACK_PAWN_MOVES.value
 
     def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
         final_moves = {}
@@ -270,7 +265,7 @@ class Knight(Piece):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "n"
-        self.possible_moves = KNIGHT_MOVES
+        self.possible_moves = Moves.KNIGHT_MOVES.value
 
 class King(Piece):
     """King class, inherits from Piece. 
@@ -282,7 +277,7 @@ class King(Piece):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "k"
-        self.possible_moves = KING_MOVES
+        self.possible_moves = Moves.KING_MOVES.value
 
 class Queen(Piece):
     """
@@ -298,7 +293,7 @@ class Queen(Piece):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "q"
-        self.possible_moves = QUEEN_MOVES
+        self.possible_moves = Moves.QUEEN_MOVES.value
 
     def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
         """
@@ -353,7 +348,7 @@ class Bishop(Queen):
     def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "b"
-        self.possible_moves = BISHOP_MOVES
+        self.possible_moves = Moves.BISHOP_MOVES.value
 
 class Rook(Queen):
     """
@@ -366,4 +361,5 @@ class Rook(Queen):
     def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "r"
-        self.possible_moves = ROOK_MOVES
+        self.possible_moves = Moves.ROOK_MOVES.value
+
