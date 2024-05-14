@@ -16,67 +16,68 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 from validate_url import Validate
-from chess_login import ChessLogin
 from player import Player
 
 class Game():
-    def __init__(self) -> None:
+
+
+    ABSOLUTE_PATH = os.path.dirname(__file__)
+    LOGIN_RELATIVE_PATH = "login.json"
+    COOKIES_RELATIVE_PATH = "cookies.json"
+    LOGIN_ABSOLUTE_PATH = os.path.join(ABSOLUTE_PATH, LOGIN_RELATIVE_PATH)
+    COOKIES_ABSOLUTE_PATH = os.path.join(ABSOLUTE_PATH, COOKIES_RELATIVE_PATH)
+
+
+    def __init__(self, headless=False) -> None:
         options = ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument('--log-level=3')
-        options.add_argument('--headless')
+        if headless is True:
+            options.add_argument('--headless')
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--ignore-ssl-errors')
-        with open("login.json") as file:
+        with open(self.LOGIN_ABSOLUTE_PATH, "r", encoding="utf-8") as file:
             creds = json.load(file)
             self.username = creds['username']
             self.password = creds['password']
 
         self.browser = Chrome(options=options)
         self.browser.get("https://www.chess.com")
-        if 'cookies.json' in os.listdir():
-            self.loadCookies()
+        if os.path.exists(self.COOKIES_ABSOLUTE_PATH):
+            self._load_cookies()
             self.browser.get("https://www.chess.com/login")
             if 'login' in self.browser.current_url:
-                self.login()
+                self._login()
         else:
-            self.login()
+            self._login()
 
-    def saveCookies(self):
+
+    def _save_cookies(self):
         # Get and store cookies after login
         cookies = self.browser.get_cookies()
 
         # Store cookies in a file
-        with open('cookies.json', 'w') as file:
+        with open(self.COOKIES_ABSOLUTE_PATH, 'w', encoding="utf-8") as file:
             file.write(json.dumps(cookies, indent=1))
         print('New Cookies saved successfully')
 
-    def loadCookies(self):
-        # Check if cookies file exists
-        if 'cookies.json' in os.listdir():
 
-            # Load cookies to a vaiable from a file
-            with open('cookies.json', 'r') as file:
-                cookies = json.load(file)
+    def _load_cookies(self):
+        # Load cookies to a vaiable from a file
+        with open(self.COOKIES_ABSOLUTE_PATH, 'r', encoding="utf-8") as file:
+            cookies = json.load(file)
+        # Set stored cookies to maintain the session
+        for cookie in cookies:
+            self.browser.add_cookie(cookie)
+        print('Cookies successfully loaded')
 
-            # Set stored cookies to maintain the session
-            for cookie in cookies:
-                self.browser.add_cookie(cookie)
-            print('Cookies successfully loaded')
-        else:
-            print('No cookies file found')
-        
         self.browser.refresh() # Refresh Browser after login
 
-    def login(self):
 
-        WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((
-                By.CLASS_NAME, "login")))
-
-        home_page_login = self.browser.find_elements(By.CLASS_NAME, "login")
-        home_page_login[1].click()
+    def _login(self):
+        self.browser.get("https://www.chess.com/login")
 
         login_email = WebDriverWait(self.browser, 10).until(
             EC.presence_of_element_located((
@@ -100,34 +101,116 @@ class Game():
         #Verify the login succeeded
         if not "www.chess.com/home" in self.browser.current_url:
             raise ValueError("Login failed! Please provide valid credentials")
+        self._save_cookies()
+
+
+    def _start_game(self, game_type: str) -> None:
+        if game_type not in ["1 min", "3 min", "5 min", "10 min", "30 min"]:
+            raise ValueError("Please provide a valid game type.")
+        self.browser.get("https://www.chess.com/play/online")
+        time.sleep(1)
+        WebDriverWait(self.browser, 10).until(
+            EC.presence_of_element_located((
+                By.CLASS_NAME, "selector-button-button"))
+                ).click()
+        time.sleep(1)
+        
+
+        buttons = self.browser.find_elements(By.CLASS_NAME, "time-selector-button-button")
+        for button in buttons:
+            if button.text == game_type:
+                button.click()
+                break
+
+        WebDriverWait(self.browser, 10).until(
+            EC.presence_of_element_located((
+                By.CLASS_NAME,
+                "ui_v5-button-component.ui_v5-button-primary.ui_v5-button-large.ui_v5-button-full"))
+                ).click()
+
+        WebDriverWait(self.browser, 20).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "clock-player-turn")))
+
+
+    def _is_game_over(self) -> bool:
+        try:
+            self.browser.find_element(By.CLASS_NAME, "result-row")
+        except NoSuchElementException:
+            return False
+        return True
+
+    def _update_positions(self, player: Player, opponent: Player) -> None:
+        player.set_positions(browser=self.browser)
+        opponent.set_positions(browser=self.browser)
+
+    def _move_piece(self, piece, move):
+        action_chain = ActionChains(self.browser)
+
+        while True:
+            try:
+                p = self.browser.find_element(
+                    By.CLASS_NAME,
+                    f"piece.{piece.color[0]}{piece.char_identifier}"
+                    f".square-{piece.board_position}")
+            except NoSuchElementException:
+                pass
+            else:
+                break
+            try:
+                p = self.browser.find_element(
+                    By.CLASS_NAME, 
+                    f"piece.square-{piece.board_position}"
+                    f".{piece.color[0]}{piece.char_identifier}")
+            except NoSuchElementException:
+                pass
+            else:
+                break
+
+        p.click()
+
+        while True:
+            try:
+                square = self.browser.find_element(
+                    By.CLASS_NAME, f"hint.square-{move}")
+            except NoSuchElementException:
+                pass
+            else:
+                break
+            try:
+                square = self.browser.find_element(
+                    By.CLASS_NAME, f"capture-hint.square-{move}")
+            except NoSuchElementException:
+                pass
+            else:
+                break
+
+        action_chain.drag_and_drop(p, square).perform()
+
+
+    def play_game(self, game_type: str="1 min"):
+        self._start_game(game_type=game_type)
+
+        #Creates 2 player objects: white and black
+        try: #Determines if the player is white or black based on if the board is flipped
+            self.browser.find_element(By.CLASS_NAME, "board.flipped")
+        except NoSuchElementException:
+            player = Player(color="white")
+            opponent = Player(color="black")
         else:
-            self.saveCookies()
+            player = Player(color="black")
+            opponent = Player(color="white")
+        self._update_positions(player=player, opponent=opponent)
 
-        #WebDriverWait(self.browser, 10).until(
-        #EC.presence_of_element_located((
-        #    By.CLASS_NAME, "clock-player-turn")))
-        #
-        ##TODO REPLACE WITH element.get_dom_element()
-        ##Creates 2 player objects: white and black
-        #try: #Determines if the player is white or black based on if the board is flipped
-        #    self.browser.find_element(By.CLASS_NAME, "flipped")
-        #except selenium.common.exceptions.NoSuchElementException:
-        #    self.player = Player(color="white", page_source=self.browser.page_source)
-        #    self.opponent = Player(color="black", page_source=self.browser.page_source)
-        #else:
-        #    self.player = Player(color="black", page_source=self.browser.page_source)
-        #    self.opponent = Player(color="white", page_source=self.browser.page_source)
-        #finally:
-        #    self.action_chains = ActionChains(self.browser)
+        while self._is_game_over() is False:
+            if player.is_turn(self.browser) is True:
+                self._update_positions(player=player, opponent=opponent)
+                player_moves = player.retrieve_non_check_moves(self.browser, opponent)
+                random_piece, random_move = random.choice(player_moves)
+                self._move_piece(piece=random_piece, move=random_move)
+                self._update_positions(player=player, opponent=opponent)
 
-    def _move_player(self):
-        while self.player.is_turn(self.browser.page_source) == False:
-            pass
-        else:
-            self.player.set_positions()
 
-    def play_game(self):
-        print("Hello!")
 
 
 

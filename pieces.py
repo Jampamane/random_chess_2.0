@@ -362,4 +362,3 @@ class Rook(Queen):
         super().__init__(color)
         self.char_identifier = "r"
         self.possible_moves = Moves.ROOK_MOVES.value
-
