@@ -13,7 +13,7 @@ class Piece():
     """
     def __init__(self, color: str) -> None:
         self.color = color
-        self.board_position = "00"
+        self.board_position = "11"
         # These 2 variables get overwritten by the
         # classes that inherit from Piece:
         self.char_identifier = ""

@@ -7,9 +7,10 @@ from pieces import Rook
 from pieces import Bishop
 from pieces import King
 from pieces import Queen
+from selenium.webdriver import Chrome
 
 class Player():
-    def __init__(self, color):
+    def __init__(self, color: str, page_source: Chrome.page_source) -> None:
         self.color = color
         self.pawn1 = Pawn(color)
         self.pawn2 = Pawn(color)
@@ -31,6 +32,7 @@ class Player():
                        self.pawn5, self.pawn6, self.pawn7, self.pawn8,
                        self.rook1, self.rook2, self.kight1, self.kight2,
                        self.bishop1, self.bishop2, self.king, self.queen]
+        self._set_positions(page_source)
 
     def __call__(self) -> None:
         pass
@@ -62,17 +64,22 @@ class Player():
             return False
         return True
 
-    def _create_dict(self, page_source, sort_color = True) -> dict:
+    def _create_dict(self, page_source: Chrome.page_source, sort_color: bool = True) -> dict:
         """
         Reads the browser's HTML and creates a 
         dictionary with piece and location information.
 
         Args:
-            page_source (_type_): _description_
-            sort_color (bool, optional): _description_. Defaults to True.
+            page_source (Chrome.page_source):
+                Current page source from the selenium browser.
+            sort_color (bool, optional):
+                Defaults to True. If set to false, will only return
+                white pieces or black pieces depending on the player color.
 
         Returns:
-            dict: _description_
+            dict: Dictionary with information on each piece.
+            Format is: {board_position: piece}.
+            Example: A white pawn in position a1 would be {11: 'wp'}
         """
         piece_dict = {}
         page = BeautifulSoup(page_source, "html.parser")
@@ -107,21 +114,25 @@ class Player():
                 piece_dict[current_position] = current_piece
         return piece_dict
 
-    def set_positions(self, page_source, piece_list) -> None:
-        '''
+    def _set_positions(self, page_source: Chrome.page_source) -> None:
+        """
         Calls the create_dict function to create a dictionary with piece and location information.
-        Uses that information to set the initial position of each piece.
-        '''
-        dict_ = self._create_dict(page_source).items()
-        piece_list_copy = list(piece_list)
-        for position, piece in dict_:
-            for player_piece in piece_list_copy:
+        Uses that information to set the positions of each piece that is currently alive.
+
+        Args:
+            page_source (Chrome.page_source):
+                Current page source from the selenium browser.
+        """
+        piece_dict = self._create_dict(page_source)
+        piece_list = self._alive_pieces()
+        for position, piece in piece_dict.items():
+            for player_piece in piece_list:
                 if piece[-1] == player_piece.char_identifier:
                     player_piece.set_position(position)
-                    piece_list_copy.remove(player_piece)
+                    piece_list.remove(player_piece)
                     break
-        if len(piece_list_copy) != 0: #If there is still a piece left in piece_list,
-            for piece in piece_list_copy: #it wasn't found in the HTML and it must be dead
+        if len(piece_list) != 0: #If there is still a piece left in piece_list,
+            for piece in piece_list: #it wasn't found in the HTML and it must be dead
                 piece.board_position = "00"
 
     def set_attribute(self, page_source, class_name) -> str:
@@ -154,7 +165,7 @@ class Player():
         clock_time = self.set_attribute(page_source, "clock-time-monospace")
         return clock_time
 
-    def alive_pieces(self) -> list:
+    def _alive_pieces(self) -> list:
         pieces = [piece for piece in self.pieces if piece.board_position != "00"]
         return pieces
 
@@ -214,45 +225,3 @@ class Player():
         if len(non_check_moves) == 0:
             return None
         return non_check_moves
-
-class White(Player):
-    def __init__(self):
-        super().__init__(color="white")
-        self.pawn1.board_position = "12"
-        self.pawn2.board_position = "22"
-        self.pawn3.board_position = "32"
-        self.pawn4.board_position = "42"
-        self.pawn5.board_position = "52"
-        self.pawn6.board_position = "62"
-        self.pawn7.board_position = "72"
-        self.pawn8.board_position = "82"
-        self.rook1.board_position = "11"
-        self.rook2.board_position = "81"
-        self.kight1.board_position = "21"
-        self.kight2.board_position = "71"
-        self.bishop1.board_position = "31"
-        self.bishop2.board_position = "61"
-        self.king.board_position = "51"
-        self.queen.board_position = "41"
-
-class Black(Player):
-    def __init__(self):
-        super().__init__(color="black")
-        self.pawn1.board_position = "17"
-        self.pawn2.board_position = "27"
-        self.pawn3.board_position = "37"
-        self.pawn4.board_position = "47"
-        self.pawn5.board_position = "57"
-        self.pawn6.board_position = "67"
-        self.pawn7.board_position = "77"
-        self.pawn8.board_position = "87"
-        self.rook1.board_position = "88"
-        self.rook2.board_position = "18"
-        self.kight1.board_position = "28"
-        self.kight2.board_position = "78"
-        self.bishop1.board_position = "38"
-        self.bishop2.board_position = "68"
-        self.king.board_position = "58"
-        self.queen.board_position = "48"
-
-import IPython; IPython.embed(); quit()

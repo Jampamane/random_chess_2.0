@@ -1,0 +1,220 @@
+[
+ {
+  "domain": "www.chess.com",
+  "expiry": 1716234149,
+  "httpOnly": false,
+  "name": "pbjs_fabrickId_cst",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "VyxHLMwsHQ%3D%3D"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1716234149,
+  "httpOnly": false,
+  "name": "pbjs_fabrickId",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "%7B%22fabrickId%22%3A%22E1%3AMVa1gqFTYHSjTkSNxR3S3ZLPccXzBlMLxAn4DM-Z2pEynTieF564YME_OLxQ97b6bf01YU5OUnQ1tPPKvRxbvzFS9UmGG-KBDkMlPqMJqoqG7KhZ6275u_Z0cQ3WKx_9%22%7D"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1747165349,
+  "httpOnly": false,
+  "name": "_sharedid",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "2651547d-e4bb-4fb8-9ea9-f0ac84ce511d"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1718221348,
+  "httpOnly": false,
+  "name": "cw-test-stand-alone-floors-comparison-multiplier-0-100",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "control"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1718221348,
+  "httpOnly": false,
+  "name": "cw-test-stand-alone-floors-facade-hardFloor-90-10",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "fallo"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1750189347,
+  "httpOnly": false,
+  "name": "_ga_NP7V31R49N",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "GS1.1.1715629345.1.0.1715629347.0.0.0"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1718221348,
+  "httpOnly": false,
+  "name": "cw-test-stand-alone-floors-facade-multiplier-90-10",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "multc"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1715629405,
+  "httpOnly": false,
+  "name": "_gat_UA-170510588-1",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "1"
+ },
+ {
+  "domain": ".chess.com",
+  "httpOnly": true,
+  "name": "PHPSESSID",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": true,
+  "value": "74de4f4fb7ac7a3c52a038b672dff3c9"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1715632976,
+  "httpOnly": false,
+  "name": "theme_cache_id",
+  "path": "/",
+  "sameSite": "None",
+  "secure": true,
+  "value": "9d9d498bfce9db5e1e9f2a436e580fec073550d0"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1747165345,
+  "httpOnly": true,
+  "name": "visitorid",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "%3Afee%3Affff%3A172.190.156.189"
+ },
+ {
+  "domain": "www.chess.com",
+  "httpOnly": true,
+  "name": "experiments",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "%7B%22web_onboarding_1month_free_trial_q12024%22%3A%22Test%202%20-%20Upgrade%22%2C%22ab_archive_review_q12024%22%3A%22control%22%7D"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1718307745,
+  "httpOnly": false,
+  "name": "ATTRIBUTION_V1",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "%7B%22initialAttribution%22%3A%7B%22source%22%3A%22unknown%22%2C%22medium%22%3A%22unknown%22%2C%22campaign%22%3Anull%2C%22term%22%3Anull%2C%22content%22%3Anull%2C%22route%22%3A%22%5C%2F%22%2C%22referer%22%3A%22unknown%22%2C%22version%22%3A%221.0.0%22%2C%22createDateTime%22%3A%221715629345%22%7D%2C%22lastAttribution%22%3Anull%7D"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1750189346,
+  "httpOnly": false,
+  "name": "_ga_Q0CBHRQJH8",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "GS1.1.1715629345.1.1.1715629346.59.0.0"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1715715746,
+  "httpOnly": false,
+  "name": "_gid",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "GA1.2.710495244.1715629346"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1747165349,
+  "httpOnly": false,
+  "name": "_sharedid_cst",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "VyxHLMwsHQ%3D%3D"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1750189346,
+  "httpOnly": false,
+  "name": "_ga",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "GA1.1.640003251.1715629346"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1747165345,
+  "httpOnly": false,
+  "name": "me",
+  "path": "/",
+  "sameSite": "Strict",
+  "secure": false,
+  "value": "%7B%22deviceId%22%3A%22ec70a1bc-1160-11ef-bfef-55942294f3a7%22%7D"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1747165348,
+  "httpOnly": false,
+  "name": "amp_5cc41a",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "ec70a1bc-1160-11ef-bfef-55942294f3a7.ODE3MTQ2NjI=..1htpnkj9q.1htpnklr1.3.1.4"
+ },
+ {
+  "domain": "www.chess.com",
+  "expiry": 1715715747,
+  "httpOnly": true,
+  "name": "GCLB",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "CPe76Y_Ly_ue7gEQAw"
+ },
+ {
+  "domain": ".www.chess.com",
+  "expiry": 1716493347,
+  "httpOnly": true,
+  "name": "asset_push",
+  "path": "/",
+  "sameSite": "Lax",
+  "secure": false,
+  "value": "20240513105624%3Bf1c8c%2Cd83d5%2C42ec5"
+ },
+ {
+  "domain": ".chess.com",
+  "expiry": 1715631145,
+  "httpOnly": true,
+  "name": "__cf_bm",
+  "path": "/",
+  "sameSite": "None",
+  "secure": true,
+  "value": "CVDU_.ARwuEIQQotyA5l4iOlIRl1pxlUXshJdWX7iK0-1715629345-1.0.1.1-HhzpaXPwc8DKMHNhQP9.NR_JNsVnOBmDDMAhoBjRgYPmefRGyAAzTHIKOkjMP1nP4_vW9NIg0SyPA7Z60ZgyXb08tPWkOAPQKBN7egVco8s"
+ }
+]
