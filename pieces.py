@@ -336,8 +336,9 @@ class Queen(Piece):
                 if continue_the_line is True:
                     final_moves[indx] = move
             else:
-                if collision_piece[0] != self.color[0]:
-                    final_moves[indx] = move
+                if continue_the_line is True:
+                    if collision_piece[0] != self.color[0]:
+                        final_moves[indx] = move
                 continue_the_line = False
         return final_moves
 

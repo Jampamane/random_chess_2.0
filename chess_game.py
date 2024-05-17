@@ -45,6 +45,7 @@ class Game():
 
         self.browser = Chrome(options=options)
         self.browser.get("https://www.chess.com")
+        self.action_chains = ActionChains(self.browser)
         if os.path.exists(self.COOKIES_ABSOLUTE_PATH):
             self._load_cookies()
             self.browser.get("https://www.chess.com/login")
@@ -140,47 +141,37 @@ class Game():
         opponent.set_positions(browser=self.browser)
 
     def _move_piece(self, piece, move):
-        action_chain = ActionChains(self.browser)
 
-        while True:
-            try:
-                p = self.browser.find_element(
-                    By.CLASS_NAME,
-                    f"piece.{piece.color[0]}{piece.char_identifier}"
-                    f".square-{piece.board_position}")
-            except NoSuchElementException:
-                pass
-            else:
-                break
-            try:
-                p = self.browser.find_element(
-                    By.CLASS_NAME, 
-                    f"piece.square-{piece.board_position}"
-                    f".{piece.color[0]}{piece.char_identifier}")
-            except NoSuchElementException:
-                pass
-            else:
-                break
+        try:
+            p = self.browser.find_element(
+                By.CLASS_NAME,
+                f"piece.{piece.color[0]}{piece.char_identifier}"
+                f".square-{piece.board_position}")
+        except NoSuchElementException:
+            pass
+
+        try:
+            p = self.browser.find_element(
+                By.CLASS_NAME, 
+                f"piece.square-{piece.board_position}"
+                f".{piece.color[0]}{piece.char_identifier}")
+        except NoSuchElementException:
+            pass
 
         p.click()
 
-        while True:
-            try:
-                square = self.browser.find_element(
-                    By.CLASS_NAME, f"hint.square-{move}")
-            except NoSuchElementException:
-                pass
-            else:
-                break
-            try:
-                square = self.browser.find_element(
-                    By.CLASS_NAME, f"capture-hint.square-{move}")
-            except NoSuchElementException:
-                pass
-            else:
-                break
+        try:
+            square = self.browser.find_element(
+                By.CLASS_NAME, f"hint.square-{move}")
+        except NoSuchElementException:
+            pass
+        try:
+            square = self.browser.find_element(
+                By.CLASS_NAME, f"capture-hint.square-{move}")
+        except NoSuchElementException:
+            pass
 
-        action_chain.drag_and_drop(p, square).perform()
+        self.action_chains.drag_and_drop(p, square).perform()
 
     def _create_chess_table(self, player: Player, opponent: Player) -> Table:
         chess_board = {}
@@ -195,9 +186,9 @@ class Game():
                         o = opponent.piece_positions[pos]
                         chess_board[pos] = (o[1].upper(), "red bold")
                     except KeyError:
-                        chess_board[pos] = (" ", "white")
+                        chess_board[pos] = ("  ", "white")
                     
-        table = Table(title="Chess Game")
+        table = Table(title="Chess Game", show_header=False)
         table.add_column(justify="center")
         table.add_column(justify="center")
         table.add_column(justify="center")
@@ -222,12 +213,8 @@ class Game():
         return table
 
     def play_game(self, game_type: str="1 min"):
-        #self._start_game(game_type=game_type)
-        self.browser.get("https://www.chess.com/game/live/107290000534?username=jampamane")
-        WebDriverWait(self.browser, 20).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME, "clock-player-turn")))
-        time.sleep(1)
+        self._start_game(game_type=game_type)
+
         #Creates 2 player objects: white and black
         try: #Determines if the player is white or black based on if the board is flipped
             self.browser.find_element(By.CLASS_NAME, "board.flipped")
@@ -238,18 +225,17 @@ class Game():
             player = Player(color="black")
             opponent = Player(color="white")
         self._update_positions(player=player, opponent=opponent)
-        t = self._create_chess_table(player=player, opponent=opponent)
-        console = Console()
-        console.print(t)
-
-
-        #while self._is_game_over() is False:
-        #    if player.is_turn(self.browser) is True:
-        #        self._update_positions(player=player, opponent=opponent)
-        #        player_moves = player.retrieve_non_check_moves(self.browser, opponent)
-        #        random_piece, random_move = random.choice(player_moves)
-        #        self._move_piece(piece=random_piece, move=random_move)
-        #        self._update_positions(player=player, opponent=opponent)
+        self.action_chains = ActionChains(self.browser)
+        with Live(self._create_chess_table(player=player, opponent=opponent)) as live:
+            while self._is_game_over() is False:
+                if player.is_turn(self.browser) is True:
+                    self._update_positions(player=player, opponent=opponent)
+                    live.update(self._create_chess_table(player=player, opponent=opponent))
+                    player_moves = player.retrieve_non_check_moves(self.browser, opponent=opponent)
+                    random_piece, random_move = random.choice(player_moves)
+                    self._move_piece(piece=random_piece, move=random_move)
+                    self._update_positions(player=player, opponent=opponent)
+                    live.update(self._create_chess_table(player=player, opponent=opponent))
 
 
 
