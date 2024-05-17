@@ -97,7 +97,7 @@ class Player():
                 # Test to see if the value is a 2 character piece identifier
                 if len(text) == 2:
                     if sort_color is True:
-                        if self.color[0] != text[0]: # Test for correct color
+                        if self.color[0] == text[0]: # Test for correct color
                             # If not correct color break
                             break
                         current_piece = text
