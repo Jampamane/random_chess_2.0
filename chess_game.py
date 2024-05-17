@@ -79,21 +79,16 @@ class Game():
     def _login(self):
         self.browser.get("https://www.chess.com/login")
 
-        login_email = WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((
-                By.ID, "username")))
-
-        login_email.send_keys(self.username)
-
-        login_password = WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((
-                By.ID, "password")))
-
-        login_password.send_keys(self.password)
-
         login_button = WebDriverWait(self.browser, 10).until(
             EC.presence_of_element_located((
                 By.CLASS_NAME, "login-space-top-large")))
+
+        input_fields = self.browser.find_elements(By.CLASS_NAME, "cc-input-component")
+        for field in input_fields:
+            if field.get_attribute("aria-label") == "Username or Email":
+                field.send_keys(self.username)
+            elif field.get_attribute("aria-label") == "Password":
+                field.send_keys(self.password)
 
         login_button.click()
         time.sleep(1)
@@ -187,10 +182,52 @@ class Game():
 
         action_chain.drag_and_drop(p, square).perform()
 
+    def _create_chess_table(self, player: Player, opponent: Player) -> Table:
+        chess_board = {}
+        for x in range(1, 9):
+            for y in range(1, 9):
+                pos = str(f"{x}{y}")
+                try:
+                    p = player.piece_positions[pos]
+                    chess_board[pos] = (p[1].upper(), "green bold")
+                except KeyError:
+                    try:
+                        o = opponent.piece_positions[pos]
+                        chess_board[pos] = (o[1].upper(), "red bold")
+                    except KeyError:
+                        chess_board[pos] = (" ", "white")
+                    
+        table = Table(title="Chess Game")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+        table.add_column(justify="center")
+
+        for z in reversed(range(1, 9)):
+            table.add_row(
+                f"[{chess_board[str(f'1{z}')][1]}]{chess_board[str(f'1{z}')][0]}",
+                f"[{chess_board[str(f'2{z}')][1]}]{chess_board[str(f'2{z}')][0]}",
+                f"[{chess_board[str(f'3{z}')][1]}]{chess_board[str(f'3{z}')][0]}",
+                f"[{chess_board[str(f'4{z}')][1]}]{chess_board[str(f'4{z}')][0]}",
+                f"[{chess_board[str(f'5{z}')][1]}]{chess_board[str(f'5{z}')][0]}",
+                f"[{chess_board[str(f'6{z}')][1]}]{chess_board[str(f'6{z}')][0]}",
+                f"[{chess_board[str(f'7{z}')][1]}]{chess_board[str(f'7{z}')][0]}",
+                f"[{chess_board[str(f'8{z}')][1]}]{chess_board[str(f'8{z}')][0]}"
+                )
+            table.add_section()
+        return table
 
     def play_game(self, game_type: str="1 min"):
-        self._start_game(game_type=game_type)
-
+        #self._start_game(game_type=game_type)
+        self.browser.get("https://www.chess.com/game/live/107290000534?username=jampamane")
+        WebDriverWait(self.browser, 20).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME, "clock-player-turn")))
+        time.sleep(1)
         #Creates 2 player objects: white and black
         try: #Determines if the player is white or black based on if the board is flipped
             self.browser.find_element(By.CLASS_NAME, "board.flipped")
@@ -201,14 +238,19 @@ class Game():
             player = Player(color="black")
             opponent = Player(color="white")
         self._update_positions(player=player, opponent=opponent)
+        t = self._create_chess_table(player=player, opponent=opponent)
+        console = Console()
+        console.print(t)
 
-        while self._is_game_over() is False:
-            if player.is_turn(self.browser) is True:
-                self._update_positions(player=player, opponent=opponent)
-                player_moves = player.retrieve_non_check_moves(self.browser, opponent)
-                random_piece, random_move = random.choice(player_moves)
-                self._move_piece(piece=random_piece, move=random_move)
-                self._update_positions(player=player, opponent=opponent)
+
+        #while self._is_game_over() is False:
+        #    if player.is_turn(self.browser) is True:
+        #        self._update_positions(player=player, opponent=opponent)
+        #        player_moves = player.retrieve_non_check_moves(self.browser, opponent)
+        #        random_piece, random_move = random.choice(player_moves)
+        #        self._move_piece(piece=random_piece, move=random_move)
+        #        self._update_positions(player=player, opponent=opponent)
+
 
 
 

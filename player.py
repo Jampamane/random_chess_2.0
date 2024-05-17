@@ -38,32 +38,19 @@ class Player():
                 self.rook1, self.rook2, self.kight1, self.kight2,
                 self.bishop1, self.bishop2, self.king, self.queen]
 
-    def get_piece_positions(self) -> dict:
+
+    @property
+    def alive_pieces(self) -> list:
+        return [piece for piece in self.pieces if piece.board_position != "00"]
+
+
+    @property
+    def piece_positions(self) -> dict:
         piece_dict = {}
         for piece in self.pieces:
             piece_dict[piece.board_position] = self.color[0] + piece.char_identifier
         return piece_dict
-    
-    def check_for_move(self, page_source):
-        piece_positions = self.get_piece_positions()
-        page_html_positions = page_source#self._create_dict(page_source)
-        for position, piece in piece_positions.items():
-            try:
-                html_piece = page_html_positions[position]
-                if html_piece == piece:
-                    piece_positions.pop(position)
-            except KeyError:
-                pass
-        
-    def has_moved(self, page_source):
-        page = BeautifulSoup(page_source, "html.parser")
-        moves = page.find_all(class_ = f"{self.color} node")
-        selected_move = page.find(class_ = f"{self.color} node selected")
-        if selected_move:
-            moves.append(selected_move)
-        if len(moves) == 0:
-            return False
-        return True
+
 
     def _create_dict(self, browser: Chrome, sort_color: bool = True) -> dict:
         """
@@ -114,6 +101,7 @@ class Player():
                 piece_dict[current_position] = current_piece
         return piece_dict
 
+
     def set_positions(self, browser: Chrome) -> None:
         """
         Calls the create_dict function to create a dictionary with piece and location information.
@@ -123,11 +111,11 @@ class Player():
             page_source (Chrome.page_source):
                 Current page source from the selenium browser.
         """
-        piece_dict = self._create_dict(browser=browser)
-        piece_list = self._alive_pieces()
+        piece_dict = self._create_dict(browser=browser, sort_color=False)
+        piece_list = self.alive_pieces
         for position, piece in piece_dict.items():
             for player_piece in piece_list:
-                if piece[-1] == player_piece.char_identifier:
+                if piece == player_piece.identity:
                     player_piece.set_position(position)
                     piece_list.remove(player_piece)
                     break
@@ -135,39 +123,6 @@ class Player():
             for piece in piece_list: #it wasn't found in the HTML and it must be dead
                 piece.board_position = "00"
 
-    def set_attribute(self, page_source, class_name) -> str:
-        '''
-        A bit of repeat logic in figuring out 
-        which attribute to set when there are exactly 2 attributes.
-        For example, 2 usernames, 2 clocks.
-        '''
-        page = BeautifulSoup(page_source, "html.parser")
-        attributes = page.find_all(class_=class_name)
-        flipped = page.find(class_="flipped")
-        attribute = ""
-        if flipped is not None:
-            if self.color == "black":
-                attribute = attributes[1].get_text()
-            elif self.color == "white":
-                attribute = attributes[0].get_text()
-        elif flipped is None:
-            if self.color == "black":
-                attribute = attributes[0].get_text()
-            elif self.color == "white":
-                attribute = attributes[1].get_text()
-        return attribute
-
-    def set_username(self, page_source) -> str:
-        username = self.set_attribute(page_source, "user-username-white")
-        return username
-
-    def set_time(self, page_source) -> str:
-        clock_time = self.set_attribute(page_source, "clock-time-monospace")
-        return clock_time
-
-    def _alive_pieces(self) -> list:
-        pieces = [piece for piece in self.pieces if piece.board_position != "00"]
-        return pieces
 
     def is_turn(self, browser: Chrome) -> bool:
         try:
@@ -181,7 +136,7 @@ class Player():
     def retrieve_final_moves(self, browser: Chrome, all_pieces = None, piece_list = None):
         final_moves = []
         if piece_list is None:
-            piece_list = self._alive_pieces()
+            piece_list = self.alive_pieces
         if all_pieces is None:
             all_pieces = self._create_dict(browser=browser, sort_color=False)
         for piece in piece_list:
@@ -191,12 +146,13 @@ class Player():
                     final_moves.append((piece, move))
         return final_moves
 
+
     def retrieve_non_check_moves(self, browser: Chrome, opponent):
         player_potential_moves = self.retrieve_final_moves(browser=browser)
         all_the_pieces = self._create_dict(browser=browser, sort_color=False)
-        opponent_alive_pieces_copy = opponent._alive_pieces()
+        opponent_alive_pieces_copy = opponent.alive_pieces
         opponent_current_positions = {
-            piece.board_position: piece for piece in opponent._alive_pieces()}
+            piece.board_position: piece for piece in opponent.alive_pieces}
         non_check_moves = []
         for piece, move in player_potential_moves:
             capture_piece = None

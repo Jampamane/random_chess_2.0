@@ -33,6 +33,10 @@ class Piece():
                 return "King"
             case "q":
                 return "Queen"
+            
+    @property
+    def identity(self):
+        return(str(f"{self.color[0].lower()}{self.char_identifier}"))
 
     def set_position(self, position: str) -> None:
         """Set the position of the piece on the board.
