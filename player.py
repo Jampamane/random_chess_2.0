@@ -1,6 +1,8 @@
 """Defines the player and all of it's characteristics."""
+from __future__ import annotations
 
 from bs4 import BeautifulSoup
+from pieces import Piece
 from pieces import Pawn
 from pieces import Knight
 from pieces import Rook
@@ -32,7 +34,12 @@ class Player():
         self.queen = Queen(color)
 
     @property
-    def pieces(self) -> list:
+    def pieces(self) -> list[Piece]:
+        """List of player pieces.
+
+        Returns:
+            list[Piece]: A list of all of the player objects. 16 pieces in total.
+        """
         return [self.pawn1, self.pawn2, self.pawn3, self.pawn4,
                 self.pawn5, self.pawn6, self.pawn7, self.pawn8,
                 self.rook1, self.rook2, self.kight1, self.kight2,
@@ -40,19 +47,34 @@ class Player():
 
 
     @property
-    def alive_pieces(self) -> list:
+    def alive_pieces(self) -> list[Piece]:
+        """
+        List of player pieces that are alive. 
+        Does a simple check to make sure the piece position doesn't equal "00".
+
+        Returns:
+            list[Piece]: A list of all the player objects that are alive.
+        """
         return [piece for piece in self.pieces if piece.board_position != "00"]
 
 
     @property
-    def piece_positions(self) -> dict:
+    def piece_positions(self) -> dict[str, str]:
+        """Fetch all of the positions of each piece that is alive.
+
+        Returns:
+            dict[str, str]: 
+                Dictionary of all the pieces that are alive.
+                Keys are positions and values are piece identities.
+                Example: {"45": "bk"} is Black King in position 45.
+        """
         piece_dict = {}
-        for piece in self.pieces:
-            piece_dict[piece.board_position] = self.color[0] + piece.char_identifier
+        for piece in self.alive_pieces:
+            piece_dict[piece.board_position] = piece.identity
         return piece_dict
 
 
-    def _create_dict(self, browser: Chrome, sort_color: bool = True) -> dict:
+    def _create_dict(self, pieces: list[str], sort_type: str = "all") -> dict[str, str]:
         """
         Reads the browser's HTML and creates a 
         dictionary with piece and location information.
@@ -67,42 +89,40 @@ class Player():
         Returns:
             dict: Dictionary with information on each piece.
             Format is: {board_position: piece}.
-            Example: A white pawn in position a1 would be {11: 'wp'}
+            Example: A white pawn in position a1 would be {'11': 'wp'}
         """
         piece_dict = {}
-        board = browser.find_element(By.TAG_NAME, "wc-chess-board")
-        positions = board.find_elements(By.TAG_NAME, "div")
-        # Selects each div compenent that was turned into text
-        for piece in positions:
-            current_piece = ""
-            current_position = ""
-            # Deletes the quotation marks and
-            # splits the div text component into individual values
-            piece_text = str(piece.get_attribute("class")).split(sep=" ")
-            # Iterates over each individual value
-            for text in piece_text: #div br piece-88
-                # Test to see if the value is a 2 character piece identifier
-                if len(text) == 2:
-                    if sort_color is True:
-                        if self.color[0] == text[0]: # Test for correct color
-                            # If not correct color break
-                            break
+        
+        for piece in pieces: #Selects each div compenent that was turned into text
+            current_piece = None
+            current_position = None
+            piece = piece.replace("\"", "").split()
+
+            for text in piece:  #Iterates over each individual value
+                if len(text) != 2: #Test to see if the value is a 2 character piece identifier
+                    try:
+                        int(text[-2:]) #Test to see if the last 2 characters can be cast to an int
+                    except ValueError:
+                        pass
+                    else:
+                        current_position = text[-2:]
+                elif len(text) == 2:
+                    if sort_type == "all":
                         current_piece = text
-                    elif sort_color is False:
-                        current_piece = text
-                try:
-                    int(text[-2:]) # Test for 2 chars cast to int
-                except ValueError:
-                    pass
-                else:
-                    current_position = text[-2:]
-            # Update dictionary if values aren't empty
-            if current_position and current_piece:
+                    elif sort_type == "player":
+                        if self.color[0] == text[0]:
+                            current_piece = text
+                    elif sort_type == "opponent":
+                        if self.color[0] != text[0]:
+                            current_piece = text
+
+            if current_position and current_piece: #Update dictionary only if correct color
                 piece_dict[current_position] = current_piece
+
         return piece_dict
 
 
-    def set_positions(self, browser: Chrome) -> None:
+    def set_positions(self, pieces: list[str]) -> None:
         """
         Calls the create_dict function to create a dictionary with piece and location information.
         Uses that information to set the positions of each piece that is currently alive.
@@ -111,10 +131,12 @@ class Player():
             page_source (Chrome.page_source):
                 Current page source from the selenium browser.
         """
-        piece_dict = self._create_dict(browser=browser, sort_color=False)
+        piece_dict = self._create_dict(pieces=pieces, sort_type="player")
         piece_list = self.alive_pieces
         for position, piece in piece_dict.items():
             for player_piece in piece_list:
+                #Check for pawn promotion
+                
                 if piece == player_piece.identity:
                     player_piece.set_position(position)
                     piece_list.remove(player_piece)
@@ -133,12 +155,12 @@ class Player():
         return True
 
 
-    def retrieve_final_moves(self, browser: Chrome, all_pieces = None, piece_list = None):
+    def retrieve_final_moves(self, pieces: list[str], all_pieces = None, piece_list = None) -> list[tuple[Piece, str]]:
         final_moves = []
         if piece_list is None:
             piece_list = self.alive_pieces
         if all_pieces is None:
-            all_pieces = self._create_dict(browser=browser, sort_color=False)
+            all_pieces = self._create_dict(pieces=pieces, sort_type="all")
         for piece in piece_list:
             moves = piece.return_final_moves(all_pieces)
             if len(moves) > 0:
@@ -147,9 +169,9 @@ class Player():
         return final_moves
 
 
-    def retrieve_non_check_moves(self, browser: Chrome, opponent):
-        player_potential_moves = self.retrieve_final_moves(browser=browser)
-        all_the_pieces = self._create_dict(browser=browser, sort_color=False)
+    def retrieve_non_check_moves(self, pieces: list[str], opponent: Player) -> list[tuple[Piece, str]]:
+        player_potential_moves = self.retrieve_final_moves(pieces=pieces)
+        all_the_pieces = self._create_dict(pieces=pieces, sort_type="all")
         opponent_alive_pieces_copy = opponent.alive_pieces
         opponent_current_positions = {
             piece.board_position: piece for piece in opponent.alive_pieces}
@@ -166,7 +188,7 @@ class Player():
             all_the_pieces[move] = f"{self.color[0]}{piece.char_identifier}"
             opponent_moves = {move: "Value don't matter" for piece, move in
                               opponent.retrieve_final_moves(
-                                  browser=browser,
+                                  pieces=pieces,
                                   all_pieces=all_the_pieces,
                                   piece_list=opponent_alive_pieces_copy)}
             try:
@@ -181,6 +203,5 @@ class Player():
                 all_the_pieces[piece.board_position] = f"{self.color[0]}{piece.char_identifier}"
             if capture_piece is not None:
                 opponent_alive_pieces_copy.append(capture_piece)
-        if len(non_check_moves) == 0:
-            return None
+
         return non_check_moves
