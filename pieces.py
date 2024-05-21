@@ -13,11 +13,11 @@ class Piece():
     """
     def __init__(self, color: str) -> None:
         self.color = color
-        self.board_position = "11"
+        self.board_position = str("11")
         # These 2 variables get overwritten by the
         # classes that inherit from Piece:
-        self.char_identifier = ""
-        self.possible_moves = {}
+        self.char_identifier = str("")
+        self.possible_moves = {int(0): {str(""): int(0)}}
 
     def __str__(self) -> str:
         match self.char_identifier:
@@ -35,7 +35,13 @@ class Piece():
                 return "Queen"
             
     @property
-    def identity(self):
+    def identity(self) -> str:
+        """Piece identity.
+
+        Returns:
+            str: String of color plus identifier.
+            For example: White Pawn is wp, Black Knight is bn
+        """
         return(str(f"{self.color[0].lower()}{self.char_identifier}"))
 
     def set_position(self, position: str) -> None:
@@ -59,7 +65,7 @@ class Piece():
         """
         return self.board_position
 
-    def _get_potential_moves(self) -> dict:
+    def _get_potential_moves(self) -> dict[int, str]:
         """
         Create a dictionary of all the possible squares on the board that a 
         piece could move to, regardless if there is another piece 
@@ -85,7 +91,7 @@ class Piece():
             moves_dict[indx] = potential_move
         return moves_dict
 
-    def _on_the_board(self) -> dict:
+    def _on_the_board(self) -> dict[int, str]:
         """
         Create a dictionary of all of the moves that don't go off of the board.
         Calls the internal function _get_potential_moves() and then
@@ -110,7 +116,10 @@ class Piece():
                         moves_on_the_board[indx] = move
         return moves_on_the_board
 
-    def _detect_collisions(self, move_dict: dict, all_piece_positions: dict) -> dict:
+    def _detect_collisions(self,
+                           move_dict: dict[int, str],
+                           all_piece_positions: dict[str, str]
+                           ) -> dict[str, str]:
         """
         Create a dictionary of all of the potential collisions 
         given the potential moves of the piece.
@@ -145,7 +154,7 @@ class Piece():
                 collisions[move] = piece
         return collisions
 
-    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
+    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
         """
         Final piece of logic to determine all of the valid moves for the piece.
         Uses collisions to figure out valid moves.
@@ -184,7 +193,7 @@ class Piece():
                     final_moves[indx] = move
         return final_moves
 
-    def return_final_moves(self, all_piece_positions) -> dict:
+    def return_final_moves(self, all_piece_positions: dict[str, str]) -> dict[int, str]:
         """Determine all of the valid moves for a piece.
 
         Args:
@@ -222,7 +231,7 @@ class Pawn(Piece):
         if self.color == "black":
             self.possible_moves = Moves.BLACK_PAWN_MOVES.value
 
-    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
+    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
         final_moves = {}
         piece_in_the_way_for_two_square_move = False
         for indx, move in move_dict.items():
@@ -299,7 +308,7 @@ class Queen(Piece):
         self.char_identifier = "q"
         self.possible_moves = Moves.QUEEN_MOVES.value
 
-    def _final_moves(self, move_dict: dict, collisions: dict) -> dict:
+    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
         """
         Final piece of logic to determine all of the valid moves for the piece.
         Uses collisions to figure out valid moves.
