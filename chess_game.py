@@ -19,6 +19,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from validate_url import Validate
 from player import Player
+from pieces import Piece
+from timing import timing
 
 class Game():
 
@@ -110,7 +112,6 @@ class Game():
                 By.CLASS_NAME, "selector-button-button"))
                 ).click()
         time.sleep(1)
-        
 
         buttons = self.browser.find_elements(By.CLASS_NAME, "time-selector-button-button")
         for button in buttons:
@@ -129,6 +130,20 @@ class Game():
             By.CLASS_NAME, "clock-player-turn")))
 
 
+    def _get_soupy_pieces(self) -> list[str]:
+        positions = []
+        soup = BeautifulSoup(self.browser.page_source, "html.parser")
+        board = soup.find("wc-chess-board")
+        divs = board.find_all("div")
+        for position in divs:
+            try:
+                if "piece" in str(position).lower():
+                    positions.append(str(position))
+            except AttributeError:
+                pass
+        return positions
+
+
     def _is_game_over(self) -> bool:
         try:
             self.browser.find_element(By.CLASS_NAME, "result-row")
@@ -136,42 +151,42 @@ class Game():
             return False
         return True
 
+    @timing
     def _update_positions(self, player: Player, opponent: Player) -> None:
-        player.set_positions(browser=self.browser)
-        opponent.set_positions(browser=self.browser)
+        pieces = self._get_soupy_pieces()
+        player.set_positions(pieces=pieces)
+        opponent.set_positions(pieces=pieces)
 
-    def _move_piece(self, piece, move):
 
+    @timing
+    def _move_piece(self, piece: Piece, move: str, opponent: Player) -> None:
+        p = None
+        square = None
         try:
             p = self.browser.find_element(
                 By.CLASS_NAME,
                 f"piece.{piece.color[0]}{piece.char_identifier}"
                 f".square-{piece.board_position}")
         except NoSuchElementException:
-            pass
-
-        try:
             p = self.browser.find_element(
-                By.CLASS_NAME, 
+                By.CLASS_NAME,
                 f"piece.square-{piece.board_position}"
                 f".{piece.color[0]}{piece.char_identifier}")
-        except NoSuchElementException:
-            pass
-
-        p.click()
+        finally:
+            p.click()
 
         try:
+            opponent.piece_positions[move]
+        except KeyError:
             square = self.browser.find_element(
                 By.CLASS_NAME, f"hint.square-{move}")
-        except NoSuchElementException:
-            pass
-        try:
+        else:
             square = self.browser.find_element(
                 By.CLASS_NAME, f"capture-hint.square-{move}")
-        except NoSuchElementException:
-            pass
+        finally:
+            self.action_chains.drag_and_drop(p, square).perform()
+            piece.set_position(position=move)
 
-        self.action_chains.drag_and_drop(p, square).perform()
 
     def _create_chess_table(self, player: Player, opponent: Player) -> Table:
         chess_board = {}
@@ -187,16 +202,16 @@ class Game():
                         chess_board[pos] = (o[1].upper(), "red bold")
                     except KeyError:
                         chess_board[pos] = ("  ", "white")
-                    
+
         table = Table(title="Chess Game", show_header=False)
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
-        table.add_column(justify="center")
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
+        table.add_column(justify="center", width=2)
 
         for z in reversed(range(1, 9)):
             table.add_row(
@@ -212,7 +227,25 @@ class Game():
             table.add_section()
         return table
 
-    def play_game(self, game_type: str="1 min"):
+
+    def _print_result(self, player_color: str) -> str:
+        result_dict = {
+            "white": 0,
+            "black": 0
+        }
+        result = self.browser.find_element(By.CLASS_NAME, "result-row").text
+        result = result.split("-")
+        result_dict["white"] = int(result[0])
+        result_dict["black"] = int(result[1])
+
+        if result_dict[player_color] == 1:
+            return "You win!"
+        if result_dict[player_color] == 0:
+            return "You lose!"
+        return "Draw!"
+
+
+    def play_game(self, game_type: str="1 min") -> None:
         self._start_game(game_type=game_type)
 
         #Creates 2 player objects: white and black
@@ -231,11 +264,16 @@ class Game():
                 if player.is_turn(self.browser) is True:
                     self._update_positions(player=player, opponent=opponent)
                     live.update(self._create_chess_table(player=player, opponent=opponent))
-                    player_moves = player.retrieve_non_check_moves(self.browser, opponent=opponent)
+                    player_moves = player.retrieve_non_check_moves(pieces=self._get_soupy_pieces(), opponent=opponent)
+                    assert len(player_moves) != 0
                     random_piece, random_move = random.choice(player_moves)
-                    self._move_piece(piece=random_piece, move=random_move)
+                    self._move_piece(piece=random_piece, move=random_move, opponent=opponent)
                     self._update_positions(player=player, opponent=opponent)
                     live.update(self._create_chess_table(player=player, opponent=opponent))
+            self._update_positions(player=player, opponent=opponent)
+            live.update(self._create_chess_table(player=player, opponent=opponent))
+
+        print(self._print_result(player_color=player.color).center(50))
 
 
 
