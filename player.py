@@ -1,7 +1,6 @@
 """Defines the player and all of it's characteristics."""
 from __future__ import annotations
 
-from bs4 import BeautifulSoup
 from pieces import Piece
 from pieces import Pawn
 from pieces import Knight
@@ -14,6 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 class Player():
+    """Player object that handles all the logic for the player."""
     def __init__(self, color: str) -> None:
         self.color = color
         self.pawn1 = Pawn(color)
@@ -136,8 +136,6 @@ class Player():
         piece_list = self.alive_pieces
         for position, piece in piece_dict.items():
             for player_piece in piece_list:
-                #Check for pawn promotion
-                
                 if piece == player_piece.identity:
                     player_piece.set_position(position)
                     piece_list.remove(player_piece)
@@ -148,6 +146,14 @@ class Player():
 
 
     def is_turn(self, browser: Chrome) -> bool:
+        """Checks to see if it's the your turn.
+
+        Args:
+            browser (Chrome): Selenium Chrome browser.
+
+        Returns:
+            bool: True if turn, False if not.
+        """
         try:
             browser.find_element(
                 By.CLASS_NAME, f"clock-component.clock-bottom.clock-{self.color}.clock-player-turn")
@@ -157,6 +163,14 @@ class Player():
 
 
     def human_readable_format(self, move_list: list[tuple[Piece, str]] ) -> list:
+        """Turns the move_list into a readable format to be displayed in the terminal.
+
+        Args:
+            move_list (list[tuple[Piece, str]]): Move list to be converted.
+
+        Returns:
+            list: Human readable format list.
+        """
         readable_list = []
         decode = {"piece": {"p": "Pawn",
                             "n": "Knight",
@@ -181,7 +195,25 @@ class Player():
 
         return readable_list
 
-    def retrieve_final_moves(self, pieces: list[str], all_pieces = None, piece_list = None) -> list[tuple[Piece, str]]:
+    def retrieve_final_moves(self,
+            pieces: list[str], all_pieces: dict[str, str] = None, piece_list: list[Piece] = None
+            ) -> list[tuple[Piece, str]]:
+        """
+        Retrieves all of the moves that all the pieces can do,
+        regardless if doing that move will put you in check.
+
+        Args:
+            pieces (list[str]): List of all player pieces.
+            all_pieces (dict, optional):
+                Dictionary list of all the pieces, player and opponent.
+                Defaults to None, for retrieve_non_check_moves().
+            piece_list (dict, optional):
+                List of all the alive pieces.
+                Defaults to None, for retrieve_non_check_moves().
+
+        Returns:
+            list[tuple[Piece, str]]: List of all the final moves.
+        """
         final_moves = []
         if piece_list is None:
             piece_list = self.alive_pieces
@@ -195,7 +227,19 @@ class Player():
         return final_moves
 
 
-    def retrieve_non_check_moves(self, pieces: list[str], opponent: Player) -> list[tuple[Piece, str]]:
+    def retrieve_non_check_moves(
+            self, pieces: list[str], opponent: Player) -> list[tuple[Piece, str]]:
+        """
+        Retrieves all of the moves that all the pieces can do,
+        specifically taking into account if doing that move will put the player in check.
+
+        Args:
+            pieces (list[str]): List of all the player pieces.
+            opponent (Player): The opponent object.
+
+        Returns:
+            list[tuple[Piece, str]]: List of the FINAL, final moves.
+        """
         player_potential_moves = self.retrieve_final_moves(pieces=pieces)
         all_the_pieces = self._create_dict(pieces=pieces, sort_type="all")
         opponent_alive_pieces_copy = opponent.alive_pieces
@@ -219,9 +263,11 @@ class Player():
                                   piece_list=opponent_alive_pieces_copy)}
             try:
                 if str(piece) == "King":
-                    opponent_moves[move]
+                    if move not in opponent_moves.values():
+                        raise KeyError
                 elif str(piece) != "King":
-                    opponent_moves[self.king.board_position]
+                    if self.king.board_position not in opponent_moves.values():
+                        raise KeyError
             except KeyError:
                 non_check_moves.append((piece, move))
             finally:

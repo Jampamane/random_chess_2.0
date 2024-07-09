@@ -33,7 +33,7 @@ class Piece():
                 return "King"
             case "q":
                 return "Queen"
-            
+
     @property
     def identity(self) -> str:
         """Piece identity.

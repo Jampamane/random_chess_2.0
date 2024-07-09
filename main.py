@@ -7,7 +7,7 @@ def main() -> None:
     Main function. Establishes a Chess Game object
     and then plays the chess game.
     """
-    game = Game(headless=True)           
+    game = Game(headless=True)
     game.play_game(game_type="1 min")
 
 
