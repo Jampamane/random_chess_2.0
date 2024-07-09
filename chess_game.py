@@ -10,6 +10,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress
 from rich.live import Live
+from rich.layout import Layout
+from rich.panel import Panel
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -20,7 +22,6 @@ from selenium.common.exceptions import NoSuchElementException
 from validate_url import Validate
 from player import Player
 from pieces import Piece
-from timing import timing
 
 class Game():
 
@@ -33,28 +34,30 @@ class Game():
 
 
     def __init__(self, headless=False) -> None:
-        options = ChromeOptions()
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument('--log-level=3')
-        if headless is True:
-            options.add_argument('--headless')
-        options.add_argument('--ignore-certificate-errors')
-        options.add_argument('--ignore-ssl-errors')
-        with open(self.LOGIN_ABSOLUTE_PATH, "r", encoding="utf-8") as file:
-            creds = json.load(file)
-            self.username = creds['username']
-            self.password = creds['password']
+        self.console = Console()
+        with self.console.status("Setting up chess..."):
+            options = ChromeOptions()
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            options.add_argument('--log-level=3')
+            if headless is True:
+                options.add_argument('--headless')
+            options.add_argument('--ignore-certificate-errors')
+            options.add_argument('--ignore-ssl-errors')
+            with open(self.LOGIN_ABSOLUTE_PATH, "r", encoding="utf-8") as file:
+                creds = json.load(file)
+                self.username = creds['username']
+                self.password = creds['password']
 
-        self.browser = Chrome(options=options)
-        self.browser.get("https://www.chess.com")
-        self.action_chains = ActionChains(self.browser)
-        if os.path.exists(self.COOKIES_ABSOLUTE_PATH):
-            self._load_cookies()
-            self.browser.get("https://www.chess.com/login")
-            if 'login' in self.browser.current_url:
+            self.browser = Chrome(options=options)
+            self.browser.get("https://www.chess.com")
+            self.action_chains = ActionChains(self.browser)
+            if os.path.exists(self.COOKIES_ABSOLUTE_PATH):
+                self._load_cookies()
+                self.browser.get("https://www.chess.com/login")
+                if 'login' in self.browser.current_url:
+                    self._login()
+            else:
                 self._login()
-        else:
-            self._login()
 
 
     def _save_cookies(self):
@@ -151,14 +154,16 @@ class Game():
             return False
         return True
 
-    @timing
+
     def _update_positions(self, player: Player, opponent: Player) -> None:
         pieces = self._get_soupy_pieces()
         player.set_positions(pieces=pieces)
         opponent.set_positions(pieces=pieces)
+        player.retrieve_non_check_moves(pieces=pieces, opponent=opponent)
+        opponent.retrieve_non_check_moves(pieces=pieces, opponent=player)
 
 
-    @timing
+
     def _move_piece(self, piece: Piece, move: str, opponent: Player) -> None:
         p = None
         square = None
@@ -190,16 +195,22 @@ class Game():
 
     def _create_chess_table(self, player: Player, opponent: Player) -> Table:
         chess_board = {}
+        emoji = {"p": "P",
+                 "n": "N",
+                 "r": "R",
+                 "b": "B",
+                 "k": "K",
+                 "q": "Q"}
         for x in range(1, 9):
             for y in range(1, 9):
                 pos = str(f"{x}{y}")
                 try:
                     p = player.piece_positions[pos]
-                    chess_board[pos] = (p[1].upper(), "green bold")
+                    chess_board[pos] = (emoji[p[1]], "green bold")
                 except KeyError:
                     try:
                         o = opponent.piece_positions[pos]
-                        chess_board[pos] = (o[1].upper(), "red bold")
+                        chess_board[pos] = (emoji[o[1]], "red bold")
                     except KeyError:
                         chess_board[pos] = ("  ", "white")
 
@@ -213,22 +224,65 @@ class Game():
         table.add_column(justify="center", width=2)
         table.add_column(justify="center", width=2)
 
-        for z in reversed(range(1, 9)):
-            table.add_row(
-                f"[{chess_board[str(f'1{z}')][1]}]{chess_board[str(f'1{z}')][0]}",
-                f"[{chess_board[str(f'2{z}')][1]}]{chess_board[str(f'2{z}')][0]}",
-                f"[{chess_board[str(f'3{z}')][1]}]{chess_board[str(f'3{z}')][0]}",
-                f"[{chess_board[str(f'4{z}')][1]}]{chess_board[str(f'4{z}')][0]}",
-                f"[{chess_board[str(f'5{z}')][1]}]{chess_board[str(f'5{z}')][0]}",
-                f"[{chess_board[str(f'6{z}')][1]}]{chess_board[str(f'6{z}')][0]}",
-                f"[{chess_board[str(f'7{z}')][1]}]{chess_board[str(f'7{z}')][0]}",
-                f"[{chess_board[str(f'8{z}')][1]}]{chess_board[str(f'8{z}')][0]}"
-                )
-            table.add_section()
-        return table
+        if player.color == "white":
+            for z in reversed(range(1, 9)):
+                table.add_row(
+                    f"[{chess_board[str(f'1{z}')][1]}]{chess_board[str(f'1{z}')][0]}",
+                    f"[{chess_board[str(f'2{z}')][1]}]{chess_board[str(f'2{z}')][0]}",
+                    f"[{chess_board[str(f'3{z}')][1]}]{chess_board[str(f'3{z}')][0]}",
+                    f"[{chess_board[str(f'4{z}')][1]}]{chess_board[str(f'4{z}')][0]}",
+                    f"[{chess_board[str(f'5{z}')][1]}]{chess_board[str(f'5{z}')][0]}",
+                    f"[{chess_board[str(f'6{z}')][1]}]{chess_board[str(f'6{z}')][0]}",
+                    f"[{chess_board[str(f'7{z}')][1]}]{chess_board[str(f'7{z}')][0]}",
+                    f"[{chess_board[str(f'8{z}')][1]}]{chess_board[str(f'8{z}')][0]}"
+                    )
+                table.add_section()
+        elif player.color == "black":
+            for z in range(1, 9):
+                table.add_row(
+                    f"[{chess_board[str(f'8{z}')][1]}]{chess_board[str(f'8{z}')][0]}",
+                    f"[{chess_board[str(f'7{z}')][1]}]{chess_board[str(f'7{z}')][0]}",
+                    f"[{chess_board[str(f'6{z}')][1]}]{chess_board[str(f'6{z}')][0]}",
+                    f"[{chess_board[str(f'5{z}')][1]}]{chess_board[str(f'5{z}')][0]}",
+                    f"[{chess_board[str(f'4{z}')][1]}]{chess_board[str(f'4{z}')][0]}",
+                    f"[{chess_board[str(f'3{z}')][1]}]{chess_board[str(f'3{z}')][0]}",
+                    f"[{chess_board[str(f'2{z}')][1]}]{chess_board[str(f'2{z}')][0]}",
+                    f"[{chess_board[str(f'1{z}')][1]}]{chess_board[str(f'1{z}')][0]}"
+                    )
+                table.add_section()
+
+        top_player = Table(show_header=False, show_lines=False, show_edge=False)
+        top_string = self.browser.find_elements(By.CLASS_NAME, "player-component")[0].text.replace("\n", " ").upper()
+        top_player.add_row(f"[red bold]{top_string}")
+        top_player.add_section()
+        top_player.add_row(str(opponent.potential_moves))
+        top_player.add_section()
+        top_player.add_row(f"Total moves: [cyan bold]{len(opponent.potential_moves)}")
+        bottom_player = Table(show_header=False, show_lines=False, show_edge=False)
+        bottom_string = self.browser.find_elements(By.CLASS_NAME, "player-component")[1].text.replace("\n", " ").upper()
+        bottom_player.add_row(f"[green bold]{bottom_string}")
+        bottom_player.add_section()
+        bottom_player.add_row(str(player.potential_moves))
+        bottom_player.add_section()
+        bottom_player.add_row(f"Total moves: [cyan bold]{len(player.potential_moves)}")
+
+        layout = Layout()
+        layout.split_row(
+            Layout(name="table"),
+            Layout(name="info")
+        )
+        layout["info"].split_column(
+            Layout(name="top_player"),
+            Layout(name="bottom_player")
+        )
+        layout["table"].size = 50
+        layout["table"].update(Panel(table))
+        layout["top_player"].update(Panel(top_player))
+        layout["bottom_player"].update(Panel(bottom_player))
+        return layout
 
 
-    def _print_result(self, player_color: str) -> str:
+    def _fetch_result(self, player_color: str) -> bool:
         result_dict = {
             "white": 0,
             "black": 0
@@ -239,10 +293,10 @@ class Game():
         result_dict["black"] = int(result[1])
 
         if result_dict[player_color] == 1:
-            return "You win!"
+            return True
         if result_dict[player_color] == 0:
-            return "You lose!"
-        return "Draw!"
+            return False
+        return None
 
 
     def play_game(self, game_type: str="1 min") -> None:
@@ -269,117 +323,14 @@ class Game():
                     random_piece, random_move = random.choice(player_moves)
                     self._move_piece(piece=random_piece, move=random_move, opponent=opponent)
                     self._update_positions(player=player, opponent=opponent)
-                    live.update(self._create_chess_table(player=player, opponent=opponent))
+                live.update(self._create_chess_table(player=player, opponent=opponent))
             self._update_positions(player=player, opponent=opponent)
             live.update(self._create_chess_table(player=player, opponent=opponent))
 
-        print(self._print_result(player_color=player.color).center(50))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # XX if black, check for move
-    # XX calculate total moves
-    # XX pick random move
-    # XX move the piece
-    # XX wait for enemy to move
-    
-    #This is the main function for v1 of random chess bot.
-    """
-    def main():
-    #Calls the color class to create a player object and an enemy object of the appropriate color
-    PlayerCol = color()
-    a = chess.Player("Player", PlayerCol)
-    if PlayerCol == "black":
-        b = chess.Player("Opponent", "white")
-        b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
-    else:
-        b = chess.Player("Opponent", "black")
-    findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
-    a.updatePieceList()
-    while True:
-        if keyboard.is_pressed("p"):
-            quit()
-        if keyboard.is_pressed("l"):
-            b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
-            findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
-            a.updatePieceList()
-        if a.turn() == True:
-            b.determineEnemyMove(a.getPiecePositions(), b.getPiecePositions(), a.pieceList)
-            findPiece(a.pieceList, a.getPiecePositions(), b.getPiecePositions(), b.pieceList)
-            a.updatePieceList()
-    """
-
-    # This is the previous main function that became super long and complicated
-    '''
-    while True:
-        if player.is_turn(browser.page_source) is True:
-            player_moves = player.retrieve_non_check_moves(browser.page_source, opponent)
-            if player_moves is None:
-                page = BeautifulSoup(browser.page_source, "html.parser")
-                selected_move = page.find(class_ = f"{opponent.color} node selected")
-                if "#" in str(selected_move.text):
-                    console.print("GAME OVER", style="red")
-                    console.print("CHECKMATE", style="red")
-                else:
-                    console.print("GAME OVER", style="red")
-                    console.print("STALEMATE", style="red")
-                return
-            random_piece, random_move = random.choice(player_moves)
-            while True:
-                try:
-                    piece = browser.find_element(
-                        By.CLASS_NAME,
-                        f"piece.{player.color[0]}{random_piece.char_identifier}"
-                        f".square-{random_piece.board_position}")
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
-                else:
-                    piece.click()
-                    break
-                try:
-                    piece = browser.find_element(
-                        By.CLASS_NAME, 
-                        f"piece.square-{random_piece.board_position}"
-                        f".{player.color[0]}{random_piece.char_identifier}")
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
-                else:
-                    piece.click()
-                    break
-            while True:
-                try:
-                    square = browser.find_element(By.CLASS_NAME, f"hint.square-{random_move}")
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
-                else:
-                    action_chains.drag_and_drop(piece, square).perform()
-                    break
-                try:
-                    square = browser.find_element(By.CLASS_NAME, f"capture-hint.square-{random_move}")
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
-                else:
-                    action_chains.drag_and_drop(piece, square).perform()
-                    break
-
-            player.set_positions(browser.page_source, player.alive_pieces())
-            opponent.set_positions(browser.page_source, opponent.alive_pieces())
-            player.print_last_move(browser.page_source, random_piece)
-            opponent_moves = opponent.retrieve_non_check_moves(browser.page_source, player)
-            if opponent_moves is None:
-                console.print("GAME OVER", style="green")
-                console.print("YOU WIN?", style="green")
-                return
-            '''
+        results = self._fetch_result(player_color=player.color)
+        if results is True:
+            self.console.print("[green bold]You win!", justify="center")
+        elif results is False:
+            self.console.print("[red bold]You lose!", justify="center")
+        elif results is None:
+            self.console.print("[yellow bold]Draw!", justify="center")

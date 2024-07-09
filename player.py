@@ -32,6 +32,7 @@ class Player():
         self.bishop2 = Bishop(color)
         self.king = King(color)
         self.queen = Queen(color)
+        self.potential_moves = ""
 
     @property
     def pieces(self) -> list[Piece]:
@@ -92,7 +93,7 @@ class Player():
             Example: A white pawn in position a1 would be {'11': 'wp'}
         """
         piece_dict = {}
-        
+
         for piece in pieces: #Selects each div compenent that was turned into text
             current_piece = None
             current_position = None
@@ -155,6 +156,31 @@ class Player():
         return True
 
 
+    def human_readable_format(self, move_list: list[tuple[Piece, str]] ) -> list:
+        readable_list = []
+        decode = {"piece": {"p": "Pawn",
+                            "n": "Knight",
+                            "b": "Bishop",
+                            "r": "Rook",
+                            "k": "King",
+                            "q": "Queen"},
+                  "position": {"1": "A",
+                               "2": "B",
+                               "3": "C",
+                               "4": "D",
+                               "5": "E",
+                               "6": "F",
+                               "7": "G",
+                               "8": "H"}
+                    }
+        for move in move_list:
+            piece = decode["piece"][move[0].identity[1]]
+            position = decode["position"][move[1][0]] + move[1][1]
+            message = f"{piece}: {position}"
+            readable_list.append(message)
+
+        return readable_list
+
     def retrieve_final_moves(self, pieces: list[str], all_pieces = None, piece_list = None) -> list[tuple[Piece, str]]:
         final_moves = []
         if piece_list is None:
@@ -204,4 +230,5 @@ class Player():
             if capture_piece is not None:
                 opponent_alive_pieces_copy.append(capture_piece)
 
+        self.potential_moves = self.human_readable_format(move_list=non_check_moves)
         return non_check_moves
