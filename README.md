@@ -2,7 +2,8 @@
 This is version 2 of random chess bot.
 
 Version 2 is more efficient than version 1 by implementing the following:
-- Added validation to eliminate moves that would put you in check.
+- Implemented class inheritance.
+- Added validation to eliminate moves that would put the player in check.
 - Ditched `pyautogui` in favor of `selenium` web browser.
 - Web scraping help accomplished with `beautifulsoup`.
 - Added login validation and cookie saving & loading.
