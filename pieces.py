@@ -3,14 +3,15 @@
 from piece_potential_moves import Moves
 
 
-class Piece():
+class Piece:
     """
     Defines all of the basic characteristics of a chess piece.
     All of the chess piece classes inherit from Piece.
-    
+
     Args:
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color: str) -> None:
         self.color = color
         self.board_position = str("11")
@@ -42,13 +43,13 @@ class Piece():
             str: String of color plus identifier.
             For example: White Pawn is wp, Black Knight is bn
         """
-        return(str(f"{self.color[0].lower()}{self.char_identifier}"))
+        return str(f"{self.color[0].lower()}{self.char_identifier}")
 
     def set_position(self, position: str) -> None:
         """Set the position of the piece on the board.
-        
+
         Args:
-            position (str): 
+            position (str):
                 2 character identifier for
                 where the piece is on the board.
                 Example: '45' would be D5.
@@ -59,7 +60,7 @@ class Piece():
         """Fetch the current position of the piece.
 
         Returns:
-            board_posistion (str): 
+            board_posistion (str):
                 2 character identifier for where the piece is on the board.
                 Example: '45' would be D5.
         """
@@ -67,12 +68,12 @@ class Piece():
 
     def _get_potential_moves(self) -> dict[int, str]:
         """
-        Create a dictionary of all the possible squares on the board that a 
-        piece could move to, regardless if there is another piece 
+        Create a dictionary of all the possible squares on the board that a
+        piece could move to, regardless if there is another piece
         in the way or if the move is off of the board.
 
         Returns:
-            moves (dict): 
+            moves (dict):
                 Dictionary object for all of the possible moves.
                 Keys are move numbers, values are board positions.
                 Example: {1: '12', 2: '22'}
@@ -98,7 +99,7 @@ class Piece():
         filters out 'off the board' moves.
 
         Returns:
-            moves (dict): 
+            moves (dict):
                 Dictionary object for all of the possible moves.
                 Keys are move numbers, values are board positions.
                 Example: {1: 12, 2: 22}
@@ -116,16 +117,15 @@ class Piece():
                         moves_on_the_board[indx] = move
         return moves_on_the_board
 
-    def _detect_collisions(self,
-                           move_dict: dict[int, str],
-                           all_piece_positions: dict[str, str]
-                           ) -> dict[str, str]:
+    def _detect_collisions(
+        self, move_dict: dict[int, str], all_piece_positions: dict[str, str]
+    ) -> dict[str, str]:
         """
-        Create a dictionary of all of the potential collisions 
+        Create a dictionary of all of the potential collisions
         given the potential moves of the piece.
 
         Args:
-            move_dict (dict): 
+            move_dict (dict):
                 Dictionary of all of the potential moves of the piece.
                 Keys are move numbers, and values are board positions.
                 Example: {1: 12, 2: 22}
@@ -136,7 +136,7 @@ class Piece():
                 Example: {32: wr, 18: bk}
 
         Returns:
-            collisions (dict): 
+            collisions (dict):
                 Dictionary of all the collisions.
                 Keys are board positions, and values are 2 char identifiers.
                 Example: {32: wr, 18: bk}
@@ -154,11 +154,13 @@ class Piece():
                 collisions[move] = piece
         return collisions
 
-    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
+    def _final_moves(
+        self, move_dict: dict[int, str], collisions: dict[str, str]
+    ) -> dict[int, str]:
         """
         Final piece of logic to determine all of the valid moves for the piece.
         Uses collisions to figure out valid moves.
-        This method is overwritten in a couple 
+        This method is overwritten in a couple
         of classes that inherit from the Piece class.
         This method is used by the Knight class and the King class.
 
@@ -168,7 +170,7 @@ class Piece():
                 Keys are move numbers, and values are board positions.
                 Example: {1: 12, 2: 22}
 
-            collisions (dict): 
+            collisions (dict):
                 Dictionary of all the collisions.
                 Keys are board positions, and values are 2 char identifiers.
                 Example: {32: wr, 18: bk}
@@ -214,15 +216,17 @@ class Piece():
         final_moves = self._final_moves(moves_on_the_board, collisions)
         return final_moves
 
+
 class Pawn(Piece):
     """
-    Pawn class, inherits from Piece. 
+    Pawn class, inherits from Piece.
     Overwrites the _final_moves method.
 
     Args:
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "p"
@@ -231,7 +235,9 @@ class Pawn(Piece):
         if self.color == "black":
             self.possible_moves = Moves.BLACK_PAWN_MOVES.value
 
-    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
+    def _final_moves(
+        self, move_dict: dict[int, str], collisions: dict[str, str]
+    ) -> dict[int, str]:
         final_moves = {}
         piece_in_the_way_for_two_square_move = False
         for indx, move in move_dict.items():
@@ -247,14 +253,16 @@ class Pawn(Piece):
                 try:
                     collision_piece = collisions[move]
                 except KeyError:
-                    if (self.color == "black"
-                    and int(self.board_position[1]) == 7
-                    and piece_in_the_way_for_two_square_move is False
+                    if (
+                        self.color == "black"
+                        and int(self.board_position[1]) == 7
+                        and piece_in_the_way_for_two_square_move is False
                     ):
                         final_moves[indx] = move
-                    elif (self.color == "white"
-                    and int(self.board_position[1]) == 2
-                    and piece_in_the_way_for_two_square_move is False
+                    elif (
+                        self.color == "white"
+                        and int(self.board_position[1]) == 2
+                        and piece_in_the_way_for_two_square_move is False
                     ):
                         final_moves[indx] = move
 
@@ -268,47 +276,55 @@ class Pawn(Piece):
                         final_moves[indx] = move
         return final_moves
 
+
 class Knight(Piece):
-    """Knight class, inherits from Piece. 
+    """Knight class, inherits from Piece.
 
     Args:
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "n"
         self.possible_moves = Moves.KNIGHT_MOVES.value
 
+
 class King(Piece):
-    """King class, inherits from Piece. 
+    """King class, inherits from Piece.
 
     Args:
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "k"
         self.possible_moves = Moves.KING_MOVES.value
 
+
 class Queen(Piece):
     """
-    Queen class, inherits from Piece. 
+    Queen class, inherits from Piece.
     Overwrites the _final_moves method.
-    Declares 'lines' of moves, 
+    Declares 'lines' of moves,
     used in the new _final_moves method.
 
     Args:
         Piece (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.char_identifier = "q"
         self.possible_moves = Moves.QUEEN_MOVES.value
 
-    def _final_moves(self, move_dict: dict[int, str], collisions: dict[str, str]) -> dict[int, str]:
+    def _final_moves(
+        self, move_dict: dict[int, str], collisions: dict[str, str]
+    ) -> dict[int, str]:
         """
         Final piece of logic to determine all of the valid moves for the piece.
         Uses collisions to figure out valid moves.
@@ -322,7 +338,7 @@ class Queen(Piece):
                 Keys are move numbers, and values are board positions.
                 Example: {1: 12, 2: 22}
 
-            collisions (dict): 
+            collisions (dict):
                 Dictionary of all the collisions.
                 Keys are board positions, and values are 2 char identifiers.
                 Example: {32: wr, 18: bk}
@@ -351,27 +367,31 @@ class Queen(Piece):
                 continue_the_line = False
         return final_moves
 
+
 class Bishop(Queen):
     """
-    Bishop class, inherits from Queen, which inherits from Piece. 
+    Bishop class, inherits from Queen, which inherits from Piece.
 
     Args:
         Queen (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "b"
         self.possible_moves = Moves.BISHOP_MOVES.value
 
+
 class Rook(Queen):
     """
-    Rook class, inherits from Queen, which inherits from Piece. 
+    Rook class, inherits from Queen, which inherits from Piece.
 
     Args:
         Queen (class): Class Pawn inherits from.
         color (str): Either "white" or "black".
     """
+
     def __init__(self, color) -> None:
         super().__init__(color)
         self.char_identifier = "r"

@@ -1,4 +1,5 @@
 """Main module that handles running the chess game."""
+
 from chess_game import Game
 
 
