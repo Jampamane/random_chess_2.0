@@ -10,6 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 
 
 class Traversal:
@@ -131,7 +132,16 @@ class Traversal:
         if game_type not in ["1 min", "3 min", "5 min", "10 min", "30 min"]:
             raise ValueError("Please provide a valid game type.")
         self.browser.get("https://www.chess.com/play/online")
-        time.sleep(1)
+        time.sleep(3)
+
+        # Close the 'Update to Legal Policies' notification
+        try:
+            self.browser.find_element(
+                By.XPATH, "/html/body/div[30]/div/section/button/span"
+            ).click()
+        except NoSuchElementException:
+            pass
+
         WebDriverWait(self.browser, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "selector-button-button"))
         ).click()
