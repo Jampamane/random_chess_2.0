@@ -205,7 +205,6 @@ class Game(Traversal):
                     player_moves = player.retrieve_non_check_moves(
                         pieces=self._get_soupy_pieces(), opponent=opponent
                     )
-                    assert len(player_moves) != 0
                     random_piece, random_move = random.choice(player_moves)
                     self._move_piece(
                         piece=random_piece, move=random_move, opponent=opponent
