@@ -165,12 +165,12 @@ class Game(Traversal):
         result_dict = {"white": 0, "black": 0}
         result = self.browser.find_element(By.CLASS_NAME, "result-row").text
         result = result.split("-")
-        result_dict["white"] = int(result[0])
-        result_dict["black"] = int(result[1])
+        result_dict["white"] = result[0]
+        result_dict["black"] = result[1]
 
-        if result_dict[player_color] == 1:
+        if result_dict[player_color] == "1":
             return True
-        if result_dict[player_color] == 0:
+        if result_dict[player_color] == "0":
             return False
         return None
 
