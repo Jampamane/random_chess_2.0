@@ -294,10 +294,10 @@ class Player:
             }
             try:
                 if str(piece) == "King":
-                    if move not in opponent_moves.values():
+                    if move not in opponent_moves.keys():
                         raise KeyError
                 elif str(piece) != "King":
-                    if self.king.board_position not in opponent_moves.values():
+                    if self.king.board_position not in opponent_moves.keys():
                         raise KeyError
             except KeyError:
                 non_check_moves.append((piece, move))
