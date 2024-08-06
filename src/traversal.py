@@ -16,11 +16,8 @@ from selenium.common.exceptions import NoSuchElementException
 class Traversal:
     """Handles initialization, file creation and web traversal."""
 
-    ABSOLUTE_PATH = os.path.dirname(__file__)
-    LOGIN_RELATIVE_PATH = "login.json"
-    COOKIES_RELATIVE_PATH = "cookies.json"
-    LOGIN_ABSOLUTE_PATH = os.path.join(ABSOLUTE_PATH, LOGIN_RELATIVE_PATH)
-    COOKIES_ABSOLUTE_PATH = os.path.join(ABSOLUTE_PATH, COOKIES_RELATIVE_PATH)
+    LOGIN_ABSOLUTE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "login.json")
+    COOKIES_ABSOLUTE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "cookies.json")
 
     def __init__(self, headless=False) -> None:
         self.console = Console()
