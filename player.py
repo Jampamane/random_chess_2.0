@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from selenium.webdriver import Chrome
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+
 from pieces import Piece
 from pieces import Pawn
 from pieces import Knight
@@ -9,9 +13,6 @@ from pieces import Rook
 from pieces import Bishop
 from pieces import King
 from pieces import Queen
-from selenium.webdriver import Chrome
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 
 
 class Player:
@@ -144,8 +145,9 @@ class Player:
 
     def set_positions(self, pieces: list[str]) -> None:
         """
-        Calls the create_dict function to create a dictionary with piece and location information.
-        Uses that information to set the positions of each piece that is currently alive.
+        Calls the create_dict function to create a dictionary
+        with piece and location information. Uses that information
+        to set the positions of each piece that is currently alive.
 
         Args:
             page_source (Chrome.page_source):
@@ -258,7 +260,8 @@ class Player:
     ) -> list[tuple[Piece, str]]:
         """
         Retrieves all of the moves that all the pieces can do,
-        specifically taking into account if doing that move will put the player in check.
+        specifically taking into account if doing that
+        move will put the player in check.
 
         Args:
             pieces (list[str]): List of all the player pieces.

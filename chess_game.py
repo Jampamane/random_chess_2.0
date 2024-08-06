@@ -185,7 +185,8 @@ class Game(Traversal):
         self._start_game(game_type=game_type)
 
         # Creates 2 player objects: white and black
-        try:  # Determines if the player is white or black based on if the board is flipped
+        # Determines if the player is white or black based on if the board is flipped
+        try:
             self.browser.find_element(By.CLASS_NAME, "board.flipped")
         except NoSuchElementException:
             player = Player(color="white")
