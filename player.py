@@ -155,12 +155,45 @@ class Player:
         """
         piece_dict = self._create_dict(pieces=pieces, sort_type="player")
         piece_list = self.alive_pieces
+        position_list = [piece.board_position for piece in piece_list]
+
+        player_queens = [piece for piece in piece_list if str(piece) == "Queen"]
+        html_queens = [piece for piece in piece_dict.values() if piece[-1] == "q"]
+        if len(html_queens) > len(player_queens):
+            for position in piece_dict:
+                if position not in position_list:
+                    if self.pawn1.board_position not in piece_dict:
+                        self.pawn1 = Queen(color=self.color)
+                        self.pawn1.board_position = position
+                    elif self.pawn2.board_position not in piece_dict:
+                        self.pawn2 = Queen(color=self.color)
+                        self.pawn2.board_position = position
+                    elif self.pawn3.board_position not in piece_dict:
+                        self.pawn3 = Queen(color=self.color)
+                        self.pawn3.board_position = position
+                    elif self.pawn4.board_position not in piece_dict:
+                        self.pawn4 = Queen(color=self.color)
+                        self.pawn4.board_position = position
+                    elif self.pawn5.board_position not in piece_dict:
+                        self.pawn5 = Queen(color=self.color)
+                        self.pawn5.board_position = position
+                    elif self.pawn6.board_position not in piece_dict:
+                        self.pawn6 = Queen(color=self.color)
+                        self.pawn6.board_position = position
+                    elif self.pawn7.board_position not in piece_dict:
+                        self.pawn7 = Queen(color=self.color)
+                        self.pawn7.board_position = position
+                    elif self.pawn8.board_position not in piece_dict:
+                        self.pawn8 = Queen(color=self.color)
+                        self.pawn8.board_position = position
+
         for position, piece in piece_dict.items():
             for player_piece in piece_list:
                 if piece == player_piece.identity:
                     player_piece.set_position(position)
                     piece_list.remove(player_piece)
                     break
+
         if len(piece_list) != 0:  # If there is still a piece left in piece_list,
             for piece in piece_list:  # it wasn't found in the HTML and it must be dead
                 piece.board_position = "00"
