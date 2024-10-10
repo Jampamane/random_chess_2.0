@@ -120,7 +120,7 @@ class Traversal:
         time.sleep(1)
 
         # Verify the login succeeded
-        if not "www.chess.com/home" in self.browser.current_url:
+        if "www.chess.com/home" not in self.browser.current_url:
             self.console.print(
                 "Login failed! Please provide valid credentials.", style="red"
             )
