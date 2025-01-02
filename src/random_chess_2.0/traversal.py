@@ -124,6 +124,8 @@ class Traversal:
                 field.send_keys(username)
             elif field.get_attribute("aria-label") == "Password":
                 field.send_keys(password)
+        
+        time.sleep(3)
 
         # Verify the login succeeded
         if "www.chess.com/home" not in self.browser.current_url:
