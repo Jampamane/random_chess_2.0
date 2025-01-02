@@ -124,7 +124,8 @@ class Traversal:
                 field.send_keys(username)
             elif field.get_attribute("aria-label") == "Password":
                 field.send_keys(password)
-        
+
+        login_button.click()
         time.sleep(3)
 
         # Verify the login succeeded
