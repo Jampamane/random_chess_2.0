@@ -39,10 +39,11 @@ class Traversal:
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-popup-blocking")
-        if headless is True:
-            options.add_argument("--headless")
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--ignore-ssl-errors")
+        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36')
+        if headless is True:
+            options.add_argument("--headless")
 
         self.console.print("Initializing browser...")
         self.browser = Chrome(options=options)
@@ -125,10 +126,13 @@ class Traversal:
                 field.send_keys(password)
 
         login_button.click()
-        time.sleep(1)
+        for x in range(30):
+            time.sleep(1)
+            self.console.print(f"{x} {self.browser.current_url}")
 
         # Verify the login succeeded
         if "www.chess.com/home" not in self.browser.current_url:
+            self.console.print(self.browser.current_url)
             self.console.print(
                 "Login failed! Please provide valid credentials.", style="red"
             )
