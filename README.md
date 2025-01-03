@@ -9,5 +9,12 @@ Version 2 is more efficient than version 1 by implementing the following:
 - Added login validation and cookie saving & loading.
 - By implementing `rich`, the whole thing can be viewed and played in a terminal.
 
+# Running with docker
+```
+docker build -t chess-bot
+docker run -it -v C:/Users/User/.chess_login:/app/src/logins --name chess-bot chess-bot
+docker start -ai chess-bot
+```
+
 ## Random Chess Bot Version 1
 [Link to version 1 of random chess bot](https://github.com/Jampamane/Random_Chess_1.0)
