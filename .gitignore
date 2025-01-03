@@ -4,8 +4,7 @@ __pycache__/
 *$py.class
 
 # json files
-login.json
-cookies.json
+logins/
 
 # testing files
 test.py
