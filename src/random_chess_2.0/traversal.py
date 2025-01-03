@@ -17,12 +17,12 @@ class Traversal:
     """Handles initialization, file creation and web traversal."""
 
     LOGIN_ABSOLUTE_PATH = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))),
-        "login.json",
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        "logins/login.json",
     )
     COOKIES_ABSOLUTE_PATH = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))),
-        "cookies.json",
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+        "logins/cookies.json",
     )
 
     def __init__(self, headless=False) -> None:
@@ -41,9 +41,11 @@ class Traversal:
         options.add_argument("--disable-popup-blocking")
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--ignore-ssl-errors")
-        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36')
+        options.add_argument('--disable-blink-features=AutomationControlled')
+
         if headless is True:
             options.add_argument("--headless")
+            options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
 
         self.console.print("Initializing browser...")
         self.browser = Chrome(options=options)
@@ -120,7 +122,7 @@ class Traversal:
 
         input_fields = self.browser.find_elements(By.CLASS_NAME, "cc-input-component")
         for field in input_fields:
-            if field.get_attribute("aria-label") == "Username or Email":
+            if field.get_attribute("aria-label") == "Username, Phone, or Email":
                 field.send_keys(username)
             elif field.get_attribute("aria-label") == "Password":
                 field.send_keys(password)
