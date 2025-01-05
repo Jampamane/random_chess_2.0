@@ -19,54 +19,13 @@ docker start -ai chess-bot
 ## Random Chess Bot Version 1
 [Link to version 1 of random chess bot](https://github.com/Jampamane/Random_Chess_1.0)
 
+=== "Tab 1"
+    Markdown **content**.
 
-<div>
-  <input type="radio" id="tab1" name="tab" checked>
-  <label for="tab1">Windows</label>
-  <input type="radio" id="tab2" name="tab">
-  <label for="tab2">Linux</label>
+    Multiple paragraphs.
 
-  <div class="tab-content" id="content1">
-    <pre><code class="language-python">
-print("poop")
-    </code></pre>
-  </div>
+=== "Tab 2"
+    More Markdown **content**.
 
-  <div class="tab-content" id="content2">
-    <pre><code class="language-python">
-print("wow")
-    </code></pre>
-  </div>
-</div>
-
-<style>
-  input[name="tab"] {
-    display: none;
-  }
-
-  label {
-    display: inline-block;
-    padding: 10px;
-    background: #ddd;
-    cursor: pointer;
-  }
-
-  label:hover {
-    background: #bbb;
-  }
-
-  input:checked + label {
-    background: #bbb;
-  }
-
-  .tab-content {
-    display: none;
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-
-  #tab1:checked ~ #content1,
-  #tab2:checked ~ #content2 {
-    display: block;
-  }
-</style>
+    - list item a
+    - list item b
