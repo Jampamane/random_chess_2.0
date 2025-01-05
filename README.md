@@ -19,28 +19,12 @@ docker start -ai chess-bot
 ## Random Chess Bot Version 1
 [Link to version 1 of random chess bot](https://github.com/Jampamane/Random_Chess_1.0)
 
----
-title: Use tabs to organize content
-output: html_document
----
+<details>
+  <summary>NodeJS example</summary>
+  *some NodeJS code here...*
+</details>
 
-You can turn parallel sections to tabs in `html_document` output.
-
-## Results {.tabset}
-
-### Plots
-
-We show a scatter plot in this section.
-
-```{r, fig.dim=c(5, 3)}
-par(mar = c(4, 4, .5, .1))
-plot(mpg ~ hp, data = mtcars, pch = 19)
-```
-
-### Tables
-
-We show the data in this tab.
-
-```{r}
-head(mtcars)
-```
+<details>
+  <summary>RoR example</summary>
+  *some Ruby on Rails code here...*
+</details>
