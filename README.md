@@ -10,21 +10,26 @@ Version 2 is more efficient than version 1 by implementing the following:
 - By implementing `rich`, the whole thing can be viewed and played in a terminal.
 
 # Running with docker
-```
-docker build -t chess-bot .
-docker run -it -v C:/Users/User/.chess_login:/app/src/logins --name chess-bot chess-bot
-docker start -ai chess-bot
-```
+<details>
+  <summary>Windows</summary>
+  
+  ```
+  docker build -t chess-bot .
+  docker run -it -v C:/.chess_login:/app/src/logins --name chess-bot chess-bot
+  docker start -ai chess-bot
+  ```
+</details>
+
+<details>
+  <summary>Linux</summary>
+  
+  ```
+  docker build -t chess-bot .
+  docker run -it -v /.chess_login:/app/src/logins --name chess-bot chess-bot
+  docker start -ai chess-bot
+  ```
+</details>
 
 ## Random Chess Bot Version 1
 [Link to version 1 of random chess bot](https://github.com/Jampamane/Random_Chess_1.0)
 
-<details>
-  <summary>NodeJS example</summary>
-  *some NodeJS code here...*
-</details>
-
-<details>
-  <summary>RoR example</summary>
-  *some Ruby on Rails code here...*
-</details>
