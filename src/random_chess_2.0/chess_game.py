@@ -9,6 +9,7 @@ from rich.panel import Panel
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 from player import Player
 from pieces import Piece
 from traversal import Traversal
@@ -199,6 +200,7 @@ class Game(Traversal):
         with Live(self._create_chess_table(player=player, opponent=opponent)) as live:
             while self._is_game_over() is False:
                 if player.is_turn(self.browser) is True:
+                    successful_move = False
                     self._update_positions(player=player, opponent=opponent)
                     live.update(
                         self._create_chess_table(player=player, opponent=opponent)
@@ -207,9 +209,16 @@ class Game(Traversal):
                         pieces=self._get_soupy_pieces(), opponent=opponent
                     )
                     random_piece, random_move = random.choice(player_moves)
-                    self._move_piece(
-                        piece=random_piece, move=random_move, opponent=opponent
-                    )
+                    while successful_move is False:
+                        try:
+                            self._move_piece(
+                                piece=random_piece, move=random_move, opponent=opponent
+                            )
+                            successful_move = True
+                        except StaleElementReferenceException:
+                            pass
+                        except NoSuchElementException:
+                            pass
                     self._update_positions(player=player, opponent=opponent)
                 live.update(self._create_chess_table(player=player, opponent=opponent))
             self._update_positions(player=player, opponent=opponent)

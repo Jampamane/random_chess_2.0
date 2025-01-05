@@ -185,3 +185,4 @@ class Traversal:
         )
 
         self.console.print("Game found!", style="green")
+        time.sleep(2)
