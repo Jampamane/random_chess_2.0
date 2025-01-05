@@ -9,7 +9,12 @@ def main() -> None:
     and then plays the chess game.
     """
     game = Game(headless=True)
-    game.play_game(game_type="1 min")
+    while True:
+        try:
+            game.play_game(game_type="1 min")
+        except KeyboardInterrupt:
+            print("Stopping chess bot!")
+            break
 
 
 if __name__ == "__main__":
