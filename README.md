@@ -11,7 +11,7 @@ Version 2 is more efficient than version 1 by implementing the following:
 
 # Running with docker
 ```
-docker build -t chess-bot
+docker build -t chess-bot .
 docker run -it -v C:/Users/User/.chess_login:/app/src/logins --name chess-bot chess-bot
 docker start -ai chess-bot
 ```
