@@ -80,6 +80,8 @@ class Traversal:
             while self._login() is False:
                 self._get_credentials()
 
+        self._settings_verify()
+
     def _save_cookies(self):
         # Get and store cookies after login
         self.console.print("Saving cookies...", style="yellow")
@@ -139,6 +141,25 @@ class Traversal:
         self.console.print("Log in successful!", style="green")
         self._save_cookies()
         return True
+    
+    def _settings_verify(self):
+        self.console.print("Verifying correct settings...", style="yellow")
+        self.browser.get("https://www.chess.com/settings/board")
+        switches = self.browser.find_elements(By.CLASS_NAME, "settings-form-switch-group")
+        for switch in switches:
+            if switch.text == "Show Legal Moves":
+                button_label = switch.find_element(By.CLASS_NAME, "cc-switch-label")
+                if button_label.value_of_css_property("background-color") == "rgba(117, 117, 117, 0.4)":
+                    self.console.print("Show Legal Moves is disabled!", style="red")
+                    self.console.print("Enabling Show Legal Moves...", style="yellow")
+                    button = button_label.find_element(By.CLASS_NAME, "cc-switch-button")
+                    button.click()
+                    save = self.browser.find_element(By.ID, "board_pieces_save")
+                    save.click()
+                    self.console.print("Show Legal Moves is enabled!", style="green")
+                else:
+                    self.console.print("Everything looks good!", style="green")
+
 
     def _start_game(self, game_type: str) -> None:
         self.console.print("Starting game...", style="yellow")
