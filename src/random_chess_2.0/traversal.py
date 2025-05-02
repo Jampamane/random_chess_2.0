@@ -32,20 +32,30 @@ class Traversal:
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--log-level=3")
         options.add_argument("--no-sandbox")  # Bypass OS security model
-        options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource issues
-        options.add_argument("--disable-gpu")  # Applicable for Windows/Linux GUI environments
-        options.add_argument("--remote-debugging-port=9222")  # Debugging port for ChromeDriver
-        options.add_argument("--disable-software-rasterizer")  # Avoid GPU rendering issues
+        options.add_argument(
+            "--disable-dev-shm-usage"
+        )  # Overcome limited resource issues
+        options.add_argument(
+            "--disable-gpu"
+        )  # Applicable for Windows/Linux GUI environments
+        options.add_argument(
+            "--remote-debugging-port=9222"
+        )  # Debugging port for ChromeDriver
+        options.add_argument(
+            "--disable-software-rasterizer"
+        )  # Avoid GPU rendering issues
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-popup-blocking")
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--ignore-ssl-errors")
-        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument("--disable-blink-features=AutomationControlled")
 
         if headless is True:
             options.add_argument("--headless")
-            options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
+            options.add_argument(
+                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+            )
 
         self.console.print("Initializing browser...")
         self.browser = Chrome(options=options)
@@ -141,25 +151,31 @@ class Traversal:
         self.console.print("Log in successful!", style="green")
         self._save_cookies()
         return True
-    
+
     def _settings_verify(self):
         self.console.print("Verifying correct settings...", style="yellow")
         self.browser.get("https://www.chess.com/settings/board")
-        switches = self.browser.find_elements(By.CLASS_NAME, "settings-form-switch-group")
+        switches = self.browser.find_elements(
+            By.CLASS_NAME, "settings-form-switch-group"
+        )
         for switch in switches:
             if switch.text == "Show Legal Moves":
                 button_label = switch.find_element(By.CLASS_NAME, "cc-switch-label")
-                if button_label.value_of_css_property("background-color") == "rgba(117, 117, 117, 0.4)":
+                if (
+                    button_label.value_of_css_property("background-color")
+                    == "rgba(117, 117, 117, 0.4)"
+                ):
                     self.console.print("Show Legal Moves is disabled!", style="red")
                     self.console.print("Enabling Show Legal Moves...", style="yellow")
-                    button = button_label.find_element(By.CLASS_NAME, "cc-switch-button")
+                    button = button_label.find_element(
+                        By.CLASS_NAME, "cc-switch-button"
+                    )
                     button.click()
                     save = self.browser.find_element(By.ID, "board_pieces_save")
                     save.click()
                     self.console.print("Show Legal Moves is enabled!", style="green")
                 else:
                     self.console.print("Everything looks good!", style="green")
-
 
     def _start_game(self, game_type: str) -> None:
         self.console.print("Starting game...", style="yellow")
