@@ -11,7 +11,7 @@ Version 2 is more efficient than version 1 by implementing the following:
 
 # Running with docker
 
-```
+```bash
 docker run -it --rm -v ./random_chess_logins:/app/src/logins ghcr.io/jampamane/random_chess_2.0
 ```
 
