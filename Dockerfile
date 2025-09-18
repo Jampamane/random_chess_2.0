@@ -1,7 +1,5 @@
-# Use the official Python slim image
-FROM python:3.12
+FROM python:3.12-slim
 
-# Install system dependencies
 RUN apt update && apt install -y \
     wget \
     unzip \

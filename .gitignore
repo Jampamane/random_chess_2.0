@@ -5,6 +5,7 @@ __pycache__/
 
 # json files
 logins/
+random_chess_logins/
 cookies.json
 
 # testing files

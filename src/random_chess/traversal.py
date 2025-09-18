@@ -5,7 +5,7 @@ import json
 import os
 from rich.console import Console
 from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -30,18 +30,21 @@ class Traversal:
         self.console = Console()
         self.console.print("Setting up chess...")
         os.makedirs(os.path.dirname(self.LOGIN_ABSOLUTE_PATH), exist_ok=True)
-        options = ChromeOptions()
+        options = Options()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--log-level=3")
+        options.add_argument("--no-sandbox")  # Bypass OS security model
+        options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource issues
+        options.add_argument("--disable-gpu")  # Applicable for Windows/Linux GUI environments
+        options.add_argument("--remote-debugging-port=9222")  # Debugging port for ChromeDriver
+        options.add_argument("--disable-software-rasterizer")  # Avoid GPU rendering issues
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-popup-blocking")
-        options.add_argument("--ignore-certificate-errors")
-        options.add_argument("--ignore-ssl-errors")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-
         if headless is True:
             options.add_argument("--headless")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--ignore-ssl-errors")
 
         self.console.print("Initializing browser...")
 
