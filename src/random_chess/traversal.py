@@ -28,6 +28,7 @@ class Traversal:
     def __init__(self, headless=False) -> None:
         self.console = Console()
         self.console.print("Setting up chess...")
+        os.makedirs(os.path.dirname(self.LOGIN_ABSOLUTE_PATH), exist_ok=True)
         options = ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--log-level=3")

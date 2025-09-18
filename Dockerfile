@@ -1,5 +1,5 @@
 # Use the official Python slim image
-FROM python:3.11-slim
+FROM python:3.12
 
 # Install system dependencies
 RUN apt update && apt install -y \
@@ -24,10 +24,8 @@ WORKDIR /app
 COPY . .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose port if necessary (e.g., Flask UI)
-EXPOSE 8000
+RUN pip install uv
+RUN uv sync
 
 # Default command to run the bot
 CMD ["python", "src/random_chess_2.0/main.py"]

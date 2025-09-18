@@ -1,6 +1,6 @@
 """Defines all of the chess pieces and all of the movement rules."""
 
-from piece_potential_moves import Moves
+from .piece_potential_moves import Moves
 
 
 class Piece:

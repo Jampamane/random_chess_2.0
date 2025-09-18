@@ -6,13 +6,13 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
-from pieces import Piece
-from pieces import Pawn
-from pieces import Knight
-from pieces import Rook
-from pieces import Bishop
-from pieces import King
-from pieces import Queen
+from .pieces import Piece
+from .pieces import Pawn
+from .pieces import Knight
+from .pieces import Rook
+from .pieces import Bishop
+from .pieces import King
+from .pieces import Queen
 
 
 class Player:

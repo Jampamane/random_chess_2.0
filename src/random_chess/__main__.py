@@ -1,9 +1,9 @@
 """Main module that handles running the chess game."""
 
-from chess_game import Game
+from .chess_game import Game
 
 
-def main() -> None:
+def random_chess() -> None:
     """
     Main function. Establishes a Chess Game object
     and then plays the chess game.

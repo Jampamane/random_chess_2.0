@@ -1,17 +1,17 @@
-[tool.poetry]
-name = "random chess"
-version = "2.0.0"
-description = "A bot that plays chess by making random moves"
-authors = ["Jeremy Brandow <jampamane@gmail.com>"]
+[project]
+name = "random-chess-2-0"
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bs4>=0.0.2",
+    "rich>=14.1.0",
+    "selenium>=4.35.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-bs4 = "^0.0.2"
-rich = "^13.7.1"
-selenium = "^4.23.1"
+[project.scripts]
+random_chess = "random_chess.__main__:random_chess"
 
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = true
