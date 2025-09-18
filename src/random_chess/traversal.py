@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import SessionNotCreatedException
 
 
 class Traversal:
@@ -32,19 +33,6 @@ class Traversal:
         options = ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--log-level=3")
-        options.add_argument("--no-sandbox")  # Bypass OS security model
-        options.add_argument(
-            "--disable-dev-shm-usage"
-        )  # Overcome limited resource issues
-        options.add_argument(
-            "--disable-gpu"
-        )  # Applicable for Windows/Linux GUI environments
-        options.add_argument(
-            "--remote-debugging-port=9222"
-        )  # Debugging port for ChromeDriver
-        options.add_argument(
-            "--disable-software-rasterizer"
-        )  # Avoid GPU rendering issues
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-popup-blocking")
@@ -54,12 +42,17 @@ class Traversal:
 
         if headless is True:
             options.add_argument("--headless")
-            options.add_argument(
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-            )
 
         self.console.print("Initializing browser...")
-        self.browser = Chrome(options=options)
+
+        try:
+            self.browser = Chrome(options=options)
+        except SessionNotCreatedException as e:
+            self.console.print("Selenium web browser failed to start!", style="red")
+            self.console.print("You might be missing some dependencies.", style="red")
+            self.console.print("Selenium error: SessionNotCreatedException", style="yellow")
+            exit(3)
+
         self.console.print("Navigating to chess.com...")
         self.browser.get("https://www.chess.com")
         self.action_chains = ActionChains(self.browser)

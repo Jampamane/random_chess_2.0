@@ -18,4 +18,4 @@ def random_chess() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    random_chess()
