@@ -28,4 +28,4 @@ RUN pip install uv
 RUN uv sync
 
 # Default command to run the bot
-CMD ["python", "src/random_chess_2.0/main.py"]
+CMD ["uv", "run", "random_chess"]
